@@ -1,19 +1,29 @@
-# auth hook
-A combination of [waterlock], [sails-auth] and [sails-permissions].
-Contains fixes that the repo maintainers refuse or are just too lazy to push
+# Waterauth
+A User authentication system using Passport and JSON Web Tokens
 
-specifically
-
-* [langateam/sails-permissions#165](https://github.com/langateam/sails-permissions/issues/165)
-* [langateam/sails-permissions#205](https://github.com/langateam/sails-permissions/issues/205)
-* [langateam/sails-permissions#229](https://github.com/langateam/sails-permissions/issues/229)
-* [langateam/sails-permissions#230](https://github.com/langateam/sails-permissions/issues/230)
-* [langateam/sails-permissions#233](https://github.com/langateam/sails-permissions/issues/233)
-
-Also, all hail [ramda]
+[![Build Status][travis-image]][travis-url]
+[![Code Climate][climate-image]][climate-url]
+[![Coverage Status][coverage-image]][coverage-url]
+[![NPM version][npm-version-image]][npm-url]
+[![NPM downloads][npm-downloads-image]][npm-url]
+[![Dependency Status][dependency-image]][dependency-url]
 
 
-[waterlock]: http://waterlock.ninja
-[sails-auth]: https://github.com/langateam/sails-auth
-[sails-permissions]: https://github.com/langateam/sails-permissions
-[ramda]: http://ramdajs.com/
+[license-image]: http://img.shields.io/badge/license-MIT-blue.svg
+[license-url]: LICENSE
+
+[npm-url]: https://npmjs.org/package/waterauth
+[npm-version-image]: http://img.shields.io/npm/v/waterauth.svg
+[npm-downloads-image]: http://img.shields.io/npm/dm/waterauth.svg
+
+[travis-url]: https://travis-ci.org/noriah/waterauth
+[travis-image]: http://img.shields.io/travis/noriah/waterauth.svg
+
+[coverage-image]: http://img.shields.io/coveralls/noriah/waterauth/master.svg
+[coverage-url]: https://coveralls.io/r/noriah/waterauth?branch=master
+
+[climate-image]: http://img.shields.io/codeclimate/github/noriah/waterauth.svg
+[climate-url]: https://codeclimate.com/github/noriah/waterauth
+
+[dependency-image]: http://img.shields.io/gemnasium/noriah/waterauth.svg
+[dependency-url]: https://gemnasium.com/noriah/waterauth

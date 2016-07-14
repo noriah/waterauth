@@ -35,7 +35,7 @@ module.exports.create = (roles, models, admin, config) => {
     // grantRegisteredPermissions(roles, models, admin, config)
   // ])
   .then(permissions => {
-    // sails.log.verbose('created', permissions.length, 'permissions')
+    sails.log.verbose('created', permissions.length, 'permissions')
     return permissions
   })
 }
@@ -65,7 +65,6 @@ function grantRootPermissions (roles, controllers, admin, config) {
   // console.log(permissions)
 
   return Promise.all(permissions)
-  .tap(x => console.log(x))
 }
 
 // function grantAdminPermissions (roles, models, admin, config) {

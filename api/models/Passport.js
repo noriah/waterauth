@@ -8,7 +8,7 @@ var bcrypt = require('bcryptjs')
  * @param {Function} next
  */
 function hashPassword (pp, next) {
-  var config = sails.config.auth.bcrypt
+  var config = sails.config.waterauth.bcrypt
   var salt = config.salt || config.rounds
   if (pp.password) {
     bcrypt.hash(pp.password, salt, function (err, hash) {
