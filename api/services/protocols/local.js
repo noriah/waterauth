@@ -164,10 +164,10 @@ function connect (req, res, next) {
         password: password,
         user: user.id
       }, function (err, passport) {
-        next(err, user)
+        return next(err, user)
       })
     } else {
-      next(null, user)
+      return next(null, user)
     }
   })
 }
