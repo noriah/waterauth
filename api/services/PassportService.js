@@ -1,7 +1,5 @@
 'use strict'
 
-var path = require('path')
-var url = require('url')
 var passportlib = require('passport')
 var R = require('ramda')
 var _ = require('lodash')
@@ -42,7 +40,8 @@ sails.after('hook:orm:loaded', () => {
  * User model free of bloat.
  */
 
-var PassportService = passportlib
+var PassportService = {}
+PassportService.passportLib = passportlib
 
 // Load authentication protocols
 PassportService.protocols = require('./protocols')
@@ -215,7 +214,7 @@ PassportService.endpoint = function endpoint (req, res) {
   // Redirect the user to the provider for authentication. When complete,
   // the provider will redirect the user back to the application at
   //     /auth/:provider/callback
-  PassportService.authenticate(provider, options)(req, res, req.next)
+  PassportService.passportLib.authenticate(provider, options)(req, res, req.next)
 }
 
 /**
@@ -252,7 +251,7 @@ PassportService.callback = function callback (req, res, next) {
       // the authentication process by attempting to obtain an access token. If
       // access was granted, the user will be logged in. Otherwise, authentication
       // has failed.
-      PassportService.authenticate(provider, next)(req, res, req.next)
+      PassportService.passportLib.authenticate(provider, next)(req, res, req.next)
     }
   }
 }
@@ -283,11 +282,11 @@ PassportService.disconnect = function disconnect (req, res, next) {
   .catch(next)
 }
 
-PassportService.serializeUser(function (user, next) {
+PassportService.passportLib.serializeUser(function (user, next) {
   next(null, user.id)
 })
 
-PassportService.deserializeUser(function (id, next) {
+PassportService.passportLib.deserializeUser(function (id, next) {
   return User.findOne(id)
   .then(function (user) {
     next(null, user || null)

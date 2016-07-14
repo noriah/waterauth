@@ -1,7 +1,5 @@
-var path = require('path')
 var R = require('ramda')
-
-var HookBuilder = require('./lib/HookBuilder.js')
+var lib = require('./lib')
 
 var defFunctions = [
   'find',
@@ -56,14 +54,14 @@ var permissionPolicies = [
   'RolePolicy'
 ]
 
-class Waterauth extends HookBuilder {
+class Waterauth extends lib.HookBuilder {
 
   constructor (sails) {
     super(sails, module)
   }
 
   configure () {
-    this.sails.services.passportservice.loadStrategies()
+    lib.passport.loadStrategies()
 
     if (!R.is(Object, this.sails.config.waterauth)) {
       this.sails.config.waterauth = {}
@@ -197,7 +195,7 @@ class Waterauth extends HookBuilder {
   }
 
   createUpdateAdmin () {
-    sails.log.verbose('waterauth is updating admin user')
+    sails.log.verbose('waterauth is updating the admin user')
 
     let userModel = R.find(R.propEq('name', 'User'), this.models)
     let keys = ['adminUsername', 'adminPassword', 'adminEmail']
@@ -243,10 +241,9 @@ class Waterauth extends HookBuilder {
     //   return user
     // })
     .then(admin => {
-      return require(path.resolve(__dirname, 'fixtures', 'permission'))
-      .create(this.roles, this.controllers, admin, this.sails.config.waterauth)
+      lib.permission.create(this.roles, this.controllers, admin, this.sails.config.waterauth)
     })
   }
 }
 
-module.exports = HookBuilder.exportHook(Waterauth)
+module.exports = lib.HookBuilder.exportHook(Waterauth)
