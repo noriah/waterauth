@@ -22,7 +22,7 @@ var R = require('ramda')
  * @param {Function} next
  */
 module.exports = function oauth2Protocol (req, accessToken, refreshToken, profile, next) {
-  var query = {
+  let query = {
     identifier: profile.id,
     protocol: 'oauth2',
     tokens: {

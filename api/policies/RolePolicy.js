@@ -1,5 +1,18 @@
 'use strict'
-var R = require('ramda')
+
+const R = require('ramda')
+
+var ModelService
+var PermissionService
+
+sails.after('hook:orm:loaded', () => {
+  ({
+    services: {
+      modelservice: ModelService,
+      permissionservice: PermissionService
+    }
+  } = sails)
+})
 
 /**
  * RolePolicy
@@ -11,16 +24,10 @@ var R = require('ramda')
  * By this point, we know we have some permissions related to the action and object
  * If they are 'owner' permissions, verify that the objects that are being accessed are owned by the current user
  */
-
-var {
-  modelservice: ModelService,
-  permissionservice: PermissionService
-} = sails.services
-
 module.exports = function RolePolicy (req, res, next) {
-  var permissions = req.permissions
-  var relations = R.groupBy(R.prop('relation'), permissions)
-  var action = PermissionService.getMethod(req.method)
+  let permissions = req.permissions
+  let relations = R.groupBy(R.prop('relation'), permissions)
+  let action = PermissionService.getMethod(req.method)
 
   // continue if there exist role Permissions which grant the asserted privilege
   if (!R.isEmpty(relations.role)) {
@@ -48,10 +55,10 @@ module.exports = function RolePolicy (req, res, next) {
   }
 
   PermissionService.findTargetObjects(req)
-  .then(function (objects) {
+  .then(objects => {
       // PermissionService.isAllowedToPerformAction checks if the user has 'user' based permissions (vs role or owner based permissions)
     return PermissionService.isAllowedToPerformAction(objects, req.user, action, ModelService.getTargetModelName(req), req.body)
-      .then(function (hasUserPermissions) {
+      .then(hasUserPermissions => {
         if (hasUserPermissions) {
           return next()
         }

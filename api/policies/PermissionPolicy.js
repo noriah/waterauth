@@ -30,7 +30,7 @@ sails.after('hook:orm:loaded', () => {
  * @param {Object}   res
  * @param {Function} next
  */
-module.exports = function (req, res, next) {
+module.exports = function PermissionPolicy (req, res, next) {
   var options = {
     model: req.model,
     method: req.method,
@@ -42,7 +42,7 @@ module.exports = function (req, res, next) {
   }
 
   PermissionService.findModelPermissions(options)
-  .then(function (permissions) {
+  .then(permissions => {
     sails.log.debug('PermissionPolicy:', permissions.length,
       'permissions grant', req.method,
       'on', req.model.name,

@@ -1,7 +1,7 @@
 'use strict'
-var crypto = require('crypto')
-var base64URL = require('base64url')
-var SAError = require('../../../lib/error/SAError.js')
+const crypto = require('crypto')
+const base64URL = require('base64url')
+const SAError = require('../../../lib/error/SAError.js')
 
 /**
  * Local Authentication Protocol
@@ -15,7 +15,7 @@ var SAError = require('../../../lib/error/SAError.js')
  * http://passportjs.org/guide/username-password/
  */
 
-var EMAIL_REGEX = /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i
+const EMAIL_REGEX = /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i
 
 /**
  * Use validator module isEmail function
@@ -43,8 +43,8 @@ function generateToken () {
  * @param {Function} next
  */
 function createUser (_user, next) {
-  var accessToken = generateToken()
-  var password = _user.password
+  let accessToken = generateToken()
+  let password = _user.password
   delete _user.password
 
   return sails.models.user.create(_user, function (err, user) {
@@ -91,10 +91,10 @@ function createUser (_user, next) {
  * @param {Function} next
  */
 function updateUser (_user, next) {
-  var password = _user.password
+  let password = _user.password
   delete _user.password
 
-  var userFinder = _user.hasOwnProperty('id') ? { id: _user.id } : { username: _user.username }
+  let userFinder = _user.hasOwnProperty('id') ? { id: _user.id } : { username: _user.username }
 
   return sails.models.user.update(userFinder, _user, function (err, user) {
     if (err) {
@@ -114,6 +114,9 @@ function updateUser (_user, next) {
         protocol: 'local',
         user: user.id
       }, function (err, pp) {
+        if (err) {
+          return next(err)
+        }
         pp.password = password
         pp.save(function (err2, pp2) {
           if (err2) {
@@ -143,9 +146,9 @@ function updateUser (_user, next) {
  * @param {Function} next
  */
 function connect (req, res, next) {
-  var user = req.user
-  var password = req.param('password')
-  var Passport = sails.models.passport
+  let user = req.user
+  let password = req.param('password')
+  let Passport = sails.models.passport
 
   Passport.findOne({
     protocol: 'local',
@@ -182,8 +185,8 @@ function connect (req, res, next) {
  * @param {Function} next
  */
 function login (req, identifier, password, next) {
-  var isEmail = validateEmail(identifier)
-  var query = {}
+  let isEmail = validateEmail(identifier)
+  let query = {}
 
   if (isEmail) {
     query.email = identifier
@@ -210,6 +213,9 @@ function login (req, identifier, password, next) {
       protocol: 'local',
       user: user.id
     }, function (err, pp) {
+      if (err) {
+        return next(err)
+      }
       if (pp) {
         pp.validatePassword(password, function (err, res) {
           if (err) {

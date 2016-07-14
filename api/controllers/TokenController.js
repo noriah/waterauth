@@ -1,6 +1,6 @@
 'use strict'
 
-var R = require('ramda')
+const R = require('ramda')
 
 var Jwt
 var Role
@@ -58,7 +58,7 @@ module.exports = {
     // .populate('permissions')
     .populate('roles', {active: true})
     .then(user => {
-      var roles = user.roles
+      let roles = user.roles
       if (sails.config.environment === 'production') {
         roles = R.pluck('name', roles)
       }
@@ -79,9 +79,8 @@ module.exports = {
       })
     })
     .then(({user, roles}) => {
-      console.log(user, roles)
-      var permsList = R.append(user.permissions, R.unnest(R.map(R.prop('permissions'), roles)))
-      var perms = R.zipObj(R.map(R.prop('id'), permsList), permsList)
+      let permsList = R.append(user.permissions, R.unnest(R.map(R.prop('permissions'), roles)))
+      let perms = R.zipObj(R.map(R.prop('id'), permsList), permsList)
       return res.json(200, perms)
     })
     .catch(next)

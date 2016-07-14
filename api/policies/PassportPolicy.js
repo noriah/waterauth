@@ -1,9 +1,9 @@
 'use strict'
-var passportlib = require('passport')
-var R = require('ramda')
-var http = require('http')
+const passportlib = require('passport')
+const R = require('ramda')
+const http = require('http')
 
-var methods = ['login', 'logIn', 'logout', 'logOut', 'isAuthenticated', 'isUnauthenticated']
+const methods = ['login', 'logIn', 'logout', 'logOut', 'isAuthenticated', 'isUnauthenticated']
 /**
  * Passport Middleware
  *
@@ -29,12 +29,12 @@ var methods = ['login', 'logIn', 'logout', 'logOut', 'isAuthenticated', 'isUnaut
  */
 module.exports = function PassportPolicy (req, res, next) {
   // Initialize Passport
-  passportlib.initialize()(req, res, function () {
+  passportlib.initialize()(req, res, () => {
     // Use the built-in sessions
-    passportlib.session()(req, res, function () {
+    passportlib.session()(req, res, () => {
       // Make the request's passport methods available for socket
       if (req.isSocket) {
-        R.forEach(function (method) {
+        R.forEach(method => {
           req[method] = http.IncomingMessage.prototype[method].bind(req)
         }, methods)
       }

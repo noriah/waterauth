@@ -1,6 +1,6 @@
 'use strict'
-var R = require('ramda')
-var crypto = require('crypto')
+const R = require('ramda')
+const crypto = require('crypto')
 
 /** @module User */
 module.exports = {
@@ -50,13 +50,13 @@ module.exports = {
     },
 
     getGravatarUrl: function getGravatarUrl () {
-      var md5 = crypto.createHash('md5')
+      let md5 = crypto.createHash('md5')
       md5.update(this.email || '')
       return `https://gravatar.com/avatar/${md5.digest('hex')}`
     },
 
     toJSON: function toJSON () {
-      var user = this.toObject()
+      let user = this.toObject()
       delete user.password
       user.gravatarUrl = this.getGravatarUrl()
       return user

@@ -1,5 +1,6 @@
 'use strict'
-var R = require('ramda')
+
+const R = require('ramda')
 /**
  * TODO - this is setting createdBy, not owner.
  * The comment below, and the name of this file/function is confusing to me

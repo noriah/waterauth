@@ -1,5 +1,6 @@
 'use strict'
-var R = require('ramda')
+
+const R = require('ramda')
 
 var User
 var TokenService

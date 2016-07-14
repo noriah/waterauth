@@ -1,10 +1,10 @@
 'use strict'
-var fnv = require('fnv-plus')
-var R = require('ramda')
-var url = require('url')
+const fnv = require('fnv-plus')
+const R = require('ramda')
+const url = require('url')
 
 module.exports = function AuditPolicy (req, res, next) {
-  var ipAddress = req.headers['x-forwarded-for'] || (req.connection && req.connection.remoteAddress)
+  let ipAddress = req.headers['x-forwarded-for'] || (req.connection && req.connection.remoteAddress)
   req.requestId = fnv.hash(new Date().valueOf() + ipAddress, 128).str()
 
   sails.models.requestlog.create({
@@ -22,7 +22,7 @@ module.exports = function AuditPolicy (req, res, next) {
 }
 
 function sanitizeRequestUrl (req) {
-  var requestUrl = url.format({
+  let requestUrl = url.format({
     protocol: req.protocol,
     host: req.host || sails.getHost(),
     pathname: req.originalUrl || req.url,

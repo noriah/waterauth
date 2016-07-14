@@ -1,5 +1,7 @@
 'use strict'
-var localProtocol = require('../services/protocols/local')
+
+const localProtocol = require('../services/protocols/local')
+
 /**
  * basicAuth
  *
@@ -7,18 +9,18 @@ var localProtocol = require('../services/protocols/local')
  * user for a single request.
  */
 module.exports = function BasicAuthPolicy (req, res, next) {
-  var auth = req.headers.authorization
+  let auth = req.headers.authorization
   if (!auth || auth.search('Basic ') !== 0) {
     return next()
   }
 
-  var authString = new Buffer(auth.split(' ')[1], 'base64').toString()
-  var username = authString.split(':')[0]
-  var password = authString.split(':')[1]
+  let authString = new Buffer(auth.split(' ')[1], 'base64').toString()
+  let username = authString.split(':')[0]
+  let password = authString.split(':')[1]
 
   sails.log.silly('authenticating', username, 'using basic auth:', req.url)
 
-  localProtocol.login(req, username, password, function (error, user, passport) {
+  localProtocol.login(req, username, password, (error, user, passport) => {
     if (error) {
       return next(error)
     }
