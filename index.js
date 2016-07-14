@@ -148,7 +148,8 @@ class Waterauth extends lib.HookBuilder {
     return Promise.all(modelPromises)
     .then(models2 => {
       this.models = models2
-      this.sails.hooks.waterauth._modelCache = R.indexBy(R.prop('identity'), models2)
+      let mCache = R.indexBy(R.prop('identity'), models2)
+      this.sails.hooks.waterauth._modelCache = mCache
     })
   }
 
