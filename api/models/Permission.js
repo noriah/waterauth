@@ -26,14 +26,14 @@ module.exports = {
     /**
      * The Model that this Permission applies to.
      */
-    model: {
-      model: 'Model',
-      required: false
-    },
+    // model: {
+    //   model: 'Model',
+    //   required: false
+    // },
 
     controller: {
       model: 'Controller',
-      required: false
+      required: true
     },
 
     name: {
@@ -63,16 +63,16 @@ module.exports = {
       notNull: true
     },
 
-    type: {
-      type: 'string',
+    // type: {
+    //   type: 'string',
 
-      enum: [
-        'controller',
-        'model'
-      ],
-      defaultsTo: 'model',
-      index: true
-    },
+    //   enum: [
+    //     'controller',
+    //     'model'
+    //   ],
+    //   defaultsTo: 'model',
+    //   index: true
+    // },
 
     relation: {
       type: 'string',
