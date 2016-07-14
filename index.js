@@ -80,6 +80,7 @@ class Waterauth extends lib.HookBuilder {
 
     if (!this.validatePolicyConfig()) {
       this.sails.log.warn('One or more required policies are missing.')
+      console.log(R.difference(permissionPolicies, this.sails.config.policies['*']))
     }
 
     this.sails.after('hook:orm:loaded', () => {
