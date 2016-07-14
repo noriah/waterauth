@@ -11,9 +11,6 @@ var defFunctions = [
   'destroy'
 ]
 
-
-var R = require('ramda')
-
 R.pathGet = function pathGet (path, obj) {
   if (!R.is(Array, path)) {
     if (!R.is(String, path)) {
@@ -59,7 +56,7 @@ var permissionPolicies = [
   'RolePolicy'
 ]
 
-class TotalAuth extends HookBuilder {
+class Waterauth extends HookBuilder {
 
   constructor (sails) {
     super(sails, module)
@@ -68,8 +65,8 @@ class TotalAuth extends HookBuilder {
   configure () {
     this.sails.services.passportservice.loadStrategies()
 
-    if (!R.is(Object, this.sails.config.auth)) {
-      this.sails.config.auth = {}
+    if (!R.is(Object, this.sails.config.waterauth)) {
+      this.sails.config.waterauth = {}
     }
 
     /**
@@ -79,13 +76,12 @@ class TotalAuth extends HookBuilder {
   }
 
   initialize (next) {
-    // let config = this.sails.config.auth
+    // let config = this.sails.config.waterauth
 
     // this.installModelOwnership()
 
     if (!this.validatePolicyConfig()) {
       this.sails.log.warn('One or more required policies are missing.')
-      this.sails.log.warn('Please see README for installation instructions: https://github.com/tjwebb/sails-permissions')
     }
 
     this.sails.after('hook:orm:loaded', () => {
@@ -104,7 +100,7 @@ class TotalAuth extends HookBuilder {
   }
 
   validatePolicyConfig () {
-    var policies = this.sails.config.policies
+    let policies = this.sails.config.policies
     return R.all(R.identity, [
       R.is(Array, policies['*']),
       R.intersection(permissionPolicies, policies['*']).length === permissionPolicies.length,
@@ -137,9 +133,9 @@ class TotalAuth extends HookBuilder {
   // }
 
   syncModels () {
-    sails.log.verbose('sails-permissions: syncing waterline models')
+    sails.log.verbose('waterauth is syncing waterline models..')
 
-    var models = R.noFalsy(R.map(model => {
+    let models = R.noFalsy(R.map(model => {
       return model && model.globalId && model.identity && {
         name: model.globalId,
         identity: model.identity,
@@ -154,15 +150,15 @@ class TotalAuth extends HookBuilder {
     }, R.values(models)))
     .then(models2 => {
       this.models = models2
-      this.sails.hooks.auth._modelCache = R.indexBy(R.prop('identity'), models2)
+      this.sails.hooks.waterauth._modelCache = R.indexBy(R.prop('identity'), models2)
     })
   }
 
   syncControllers () {
-    sails.log.verbose('sails-permissions: syncing waterline controllers')
+    sails.log.verbose('waterauth is now syncing waterline controllers...')
 
-    var controllers = R.noFalsy(R.map(controller => {
-      var funcs = R.functions(controller)
+    let controllers = R.noFalsy(R.map(controller => {
+      let funcs = R.functions(controller)
 
       if (R.find(R.propEq('identity', controller.identity), this.models)) {
         funcs = R.uniq(R.concat(defFunctions, funcs))
@@ -182,12 +178,12 @@ class TotalAuth extends HookBuilder {
     }, R.values(controllers)))
     .then(controllers2 => {
       this.controllers = controllers2
-      this.sails.hooks.auth._controllerCache = R.indexBy(R.prop('identity'), controllers2)
+      this.sails.hooks.waterauth._controllerCache = R.indexBy(R.prop('identity'), controllers2)
     })
   }
 
   updateRoles () {
-    sails.log.verbose('sails-permissions: updating permission roles')
+    sails.log.verbose('waterauth moved on to updating permission roles...')
 
     return Promise.all([
       this.sails.models.role.findOrCreate({ name: 'root' }, { name: 'root' }),
@@ -201,29 +197,29 @@ class TotalAuth extends HookBuilder {
   }
 
   createUpdateAdmin () {
-    sails.log.verbose('sails-permissions: updating admin user')
+    sails.log.verbose('waterauth is updating admin user')
 
-    var userModel = R.find(R.propEq('name', 'User'), this.models)
-    var keys = ['adminUsername', 'adminPassword', 'adminEmail']
-    var hasKeys = R.all(R.identity, R.map(key => !R.isNil(sails.config.auth[key]), keys))
+    let userModel = R.find(R.propEq('name', 'User'), this.models)
+    let keys = ['adminUsername', 'adminPassword', 'adminEmail']
+    let hasKeys = R.all(R.identity, R.map(key => !R.isNil(sails.config.waterauth[key]), keys))
     if (!hasKeys) {
       throw new Error('Missing auth config requirement')
     }
 
-    return sails.models.user.findOne({ username: sails.config.auth.adminUsername })
+    return sails.models.user.findOne({ username: sails.config.waterauth.adminUsername })
     .then(user => {
       if (user) {
         return user
       }
 
-      sails.log.info('sails-permissions: admin user does not exist creating...')
+      sails.log.info('waterauth: admin user does not exist creating...')
       return sails.models.user.register({
-        username: sails.config.auth.adminUsername,
-        password: sails.config.auth.adminPassword,
-        email: sails.config.auth.adminEmail,
-        firstName: sails.config.auth.adminFirstName || 'Admin',
-        lastname: sails.config.auth.adminLastName || 'McAdminFace',
-        roles: [ R.find(R.propEq('name', 'admin'), this.roles).id ],
+        username: sails.config.waterauth.adminUsername,
+        password: sails.config.waterauth.adminPassword,
+        email: sails.config.waterauth.adminEmail,
+        firstName: sails.config.waterauth.adminFirstName || 'Admin',
+        lastname: sails.config.waterauth.adminLastName || 'McAdminFace',
+        roles: [ R.find(R.propEq('name', 'root'), this.roles).id ],
         // createdBy: 1,
         // owner: 1,
         model: userModel.id
@@ -232,25 +228,25 @@ class TotalAuth extends HookBuilder {
   }
 
   initializePermissions () {
-    sails.log.verbose('sails-permissions: setting up permissions')
+    sails.log.verbose('waterauth is finally setting up permissions...')
 
     return this.sails.models.user.findOne({
-      username: this.sails.config.auth.adminUsername
+      username: this.sails.config.waterauth.adminUsername
     })
     // .then(user => {
     //   if (user.createdBy !== user.id || user.owner !== user.id) {
     //     user.createdBy = user.id
     //     user.owner = user.id
-    //     this.sails.log.debug('sails-permissions: updating admin user:', user)
+    //     this.sails.log.debug('waterauth: updating admin user:', user)
     //     return user.save()
     //   }
     //   return user
     // })
     .then(admin => {
       return require(path.resolve(__dirname, 'fixtures', 'permission'))
-      .create(this.roles, this.controllers, admin, this.sails.config.auth)
+      .create(this.roles, this.controllers, admin, this.sails.config.waterauth)
     })
   }
 }
 
-module.exports = HookBuilder.exportHook(TotalAuth)
+module.exports = HookBuilder.exportHook(Waterauth)

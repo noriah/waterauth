@@ -1,21 +1,21 @@
 {
-  "name": "sails-hook-waterauth",
+  "name": "waterauth",
   "version": "0.1.0",
-  "description": "Auth and Passport hook",
+  "description": "User Authentication for Sails using Passport and/or JWT",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified... yet\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/amreuland/sails-hook-total-auth.git"
+    "url": "https://github.com/amreuland/waterauth"
   },
-  "author": "",
-  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/amreuland/sails-hook-total-auth/issues"
+    "url": "https://github.com/amreuland/waterauth/issues"
   },
-  "homepage": "https://github.com/amreuland/sails-hook-total-auth#readme",
+  "author": "Austin Reuland <amreuland@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/amreuland/waterauth",
   "sails": {
     "isHook": true,
     "hookName": "waterauth"
