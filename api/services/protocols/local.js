@@ -49,7 +49,7 @@ function createUser (_user, next) {
 
   return sails.models.user.create(_user, function (err, user) {
     if (err) {
-      sails.log(err)
+      sails.log.error(err)
 
       if (err.code === 'E_VALIDATION') {
         return next(new SAError({originalError: err}))
@@ -70,11 +70,11 @@ function createUser (_user, next) {
         }
 
         return user.destroy(function (destroyErr) {
-          next(destroyErr || err)
+          return next(destroyErr || err)
         })
       }
 
-      next(null, user)
+      return next(null, user)
     })
   })
 }
@@ -98,7 +98,7 @@ function updateUser (_user, next) {
 
   return sails.models.user.update(userFinder, _user, function (err, user) {
     if (err) {
-      sails.log(err)
+      sails.log.error(err)
 
       if (err.code === 'E_VALIDATION') {
         return next(new SAError({ originalError: err }))
@@ -123,13 +123,13 @@ function updateUser (_user, next) {
             if (err2.code === 'E_VALIDATION') {
               err2 = new SAError({ originalError: err2 })
             }
-            next(err2)
+            return next(err2)
           }
-          next(null, user)
+          return next(null, user)
         })
       })
     } else {
-      next(null, user)
+      return next(null, user)
     }
   })
 }
