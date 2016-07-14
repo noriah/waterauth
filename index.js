@@ -1,5 +1,5 @@
 var R = require('ramda')
-var lib = require('./lib')
+const lib = require('./lib')
 
 var defFunctions = [
   'find',
@@ -9,26 +9,22 @@ var defFunctions = [
   'destroy'
 ]
 
-R.pathGet = function pathGet (path, obj) {
+function pathBase (path) {
   if (!R.is(Array, path)) {
     if (!R.is(String, path)) {
       return null
     }
     path = R.split('.', path)
   }
+  return path
+}
 
-  return R.path(path, obj)
+R.pathGet = function pathGet (path, obj) {
+  return R.path(pathBase(path), obj)
 }
 
 R.pathHas = function pathHas (path, obj) {
-  if (!R.is(Array, path)) {
-    if (!R.is(String, path)) {
-      return null
-    }
-    path = R.split('.', path)
-  }
-
-  return R.pathSatisfies(x => !R.isNil(x), path, obj)
+  return R.pathSatisfies(x => !R.isNil(x), pathBase(path), obj)
 }
 
 var falsyArr = [false, null, 0, '', undefined, NaN]
@@ -58,6 +54,7 @@ class Waterauth extends lib.HookBuilder {
 
   constructor (sails) {
     super(sails, module)
+    sails.utils = lib.utils
   }
 
   configure () {
