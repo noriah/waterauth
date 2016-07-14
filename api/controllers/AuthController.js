@@ -73,8 +73,8 @@ module.exports = {
    * @param {Object} res
    */
   callback: function callback (req, res) {
-    var provider = req.param('provider')
-    var action = req.param('action')
+    let provider = req.param('provider')
+    let action = req.param('action')
 
     function negotiateError (err) {
       if (action === 'register') {
@@ -110,7 +110,7 @@ module.exports = {
         // Upon successful login, optionally redirect the user if there is a
         // `next` query param
         if (req.query.next) {
-          var url = AuthService.buildCallbackNextUrl(req)
+          let url = AuthService.buildCallbackNextUrl(req)
           return res.redirect(url)
         } else if (sails.config.passport[provider] && sails.config.passport[provider].next) {
           return res.redirect(sails.config.passport[provider].next)

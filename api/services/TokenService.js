@@ -5,10 +5,10 @@
  *
  * JWT token service which handles issuing and verifying tokens.
  */
-var jwt = require('jwt-simple')
-var moment = require('moment')
-var uuid = require('node-uuid')
-var R = require('ramda')
+const jwt = require('jwt-simple')
+const moment = require('moment')
+const uuid = require('node-uuid')
+const R = require('ramda')
 
 var Jwt
 var JwtUse
@@ -46,10 +46,10 @@ TokenService.TokenError = TokenError
 TokenService.getTokenFromRequest = function getTokenFromRequest (req) {
   return new Promise((resolve, reject) => {
     if (req.headers && req.headers.authorization) {
-      var parts = req.headers.authorization.split(' ')
+      let parts = req.headers.authorization.split(' ')
       if (parts.length === 2) {
-        var scheme = parts[0]
-        var credentials = parts[1]
+        let scheme = parts[0]
+        let credentials = parts[1]
 
         if (/^Bearer$/i.test(scheme)) {
           return resolve(credentials)
@@ -58,7 +58,7 @@ TokenService.getTokenFromRequest = function getTokenFromRequest (req) {
         return reject(new TokenError(400, 'Bad authorization header format', 'E_TOKEN_BAD_FORMAT'))
       }
     } else {
-      var token = sails.utils.allParams(req).token
+      let token = sails.utils.allParams(req).token
       if (!R.isNil(token)) {
         return resolve(token)
       } else {
@@ -80,17 +80,17 @@ TokenService.getTokenFromRequest = function getTokenFromRequest (req) {
  * @api public
  */
 TokenService.createToken = function createToken (req, user) {
-  var jwtConf = sails.config.jwt || {}
-  var expiryUnit = (jwtConf.expiry && jwtConf.expiry.unit) || 'days'
-  var expiryLength = (jwtConf.expiry && jwtConf.expiry.length) || 7
-  var expires = moment().add(expiryLength, expiryUnit).valueOf()
-  var issued = Date.now()
+  let jwtConf = sails.config.jwt || {}
+  let expiryUnit = (jwtConf.expiry && jwtConf.expiry.unit) || 'days'
+  let expiryLength = (jwtConf.expiry && jwtConf.expiry.length) || 7
+  let expires = moment().add(expiryLength, expiryUnit).valueOf()
+  let issued = Date.now()
   user = user || req.user
 
-  var {ip: addr} = sails.utils.addressFromRequest(req)
+  let {ip: addr} = sails.utils.addressFromRequest(req)
 
   return new Promise((resolve, reject) => {
-    var token = jwt.encode({
+    let token = jwt.encode({
       iss: user.id + '|' + addr,
       sub: jwtConf.subject,
       aud: jwtConf.audience,
@@ -134,7 +134,7 @@ TokenService.saveToken = function saveToken (tokenObj) {
  * @return {Promise}       A promise to be fulfilled
  */
 TokenService.useToken = function useToken (tokenObj, address) {
-  var use = {
+  let use = {
     jsonWebToken: tokenObj.id,
     remoteAddress: address
   }
@@ -179,12 +179,12 @@ TokenService.useToken = function useToken (tokenObj, address) {
  * @param  {String}   token the token to be validated
  */
 TokenService.validateToken = function validateToken (token) {
-  var jwtConf = sails.config.jwt
+  let jwtConf = sails.config.jwt
 
-  var clockTolerance = (jwtConf.clockTolerance || 0) * 1000
+  let clockTolerance = (jwtConf.clockTolerance || 0) * 1000
 
   return new Promise((resolve, reject) => {
-    var _token
+    let _token
     try {
       // decode the token
       _token = jwt.decode(token, jwtConf.secret, jwtConf.algorithm)
@@ -195,7 +195,7 @@ TokenService.validateToken = function validateToken (token) {
     }
 
     // set the time of the request
-    var _reqTime = Date.now()
+    let _reqTime = Date.now()
 
     // If token is expired
     if (_token.exp <= _reqTime) {
@@ -218,7 +218,7 @@ TokenService.validateToken = function validateToken (token) {
       return reject(new TokenError(401, 'This token cannot be accepted for this domain.', 'E_TOKEN_DOMAIN'))
     }
 
-    var _iss = _token.iss.split('|')
+    let _iss = _token.iss.split('|')
 
     return resolve({
       uid: _iss[0],

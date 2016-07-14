@@ -17,7 +17,7 @@
  * @param {Function} next
  */
 module.exports = function openidProtocol (req, identifier, profile, next) {
-  var query = {
+  let query = {
     identifier: identifier,
     protocol: 'openid'
   }

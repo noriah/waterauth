@@ -5,9 +5,9 @@
  *
  * Verify that the User fulfills permission 'where' conditions and attribute blacklist restrictions
  */
-var wlFilter = require('waterline-criteria')
-var _ = require('lodash')
-var R = require('ramda')
+const wlFilter = require('waterline-criteria')
+const _ = require('lodash')
+const R = require('ramda')
 
 var PermissionService
 
@@ -20,15 +20,15 @@ sails.after('hook:orm:loaded', () => {
 })
 
 module.exports = function CriteriaPolicy (req, res, next) {
-  var permissions = req.permissions
+  let permissions = req.permissions
 
   if (R.isEmpty(permissions)) {
     return next()
   }
 
-  var action = PermissionService.getMethod(req.method)
+  let action = PermissionService.getMethod(req.method)
 
-  var body = req.body || req.query
+  let body = req.body || req.query
 
   // if we are creating, we don't need to query the db, just check the where clause vs the passed in data
   if (action === 'create') {
@@ -44,16 +44,13 @@ module.exports = function CriteriaPolicy (req, res, next) {
   if (!R.contains(action, ['update', 'delete'])) {
     // get all of the where clauses and blacklists into one flat array
     // if a permission has no criteria then it is always true
-    var criteria = _.compact(_.flatten(
-      _.map(
-        R.pluck('criteria', permissions),
-        function (c) {
-          if (c.length === 0) {
-            return [{where: {}}]
-          }
-          return c
+    let criteria = _.compact(R.flatten(
+      R.map(c => {
+        if (c.length === 0) {
+          return [{where: {}}]
         }
-      )
+        return c
+      }, R.pluck('criteria', permissions))
     ))
 
     if (criteria.length) {
@@ -76,7 +73,7 @@ module.exports = function CriteriaPolicy (req, res, next) {
   }
 
   PermissionService.findTargetObjects(req)
-    .then(function (objects) {
+    .then(objects => {
       // attributes are not important for a delete request
       if (action === 'delete') {
         body = undefined
@@ -94,9 +91,9 @@ module.exports = function CriteriaPolicy (req, res, next) {
 }
 
 function filterObjectsByCriteria (objects, criteria) {
-  return objects.reduce(function (memo, item) {
-    criteria.some(function (crit) {
-      var filtered = wlFilter([item], {
+  return objects.reduce((memo, item) => {
+    criteria.some(crit => {
+      let filtered = wlFilter([item], {
         where: {
           or: [crit.where || {}]
         }
@@ -104,7 +101,7 @@ function filterObjectsByCriteria (objects, criteria) {
 
       if (filtered.length) {
         if (crit.blacklist && crit.blacklist.length) {
-          crit.blacklist.forEach(function (term) {
+          crit.blacklist.forEach(term => {
             delete item[term]
           })
         }
@@ -126,19 +123,19 @@ function bindResponsePolicy (req, res, criteria) {
 }
 
 function responsePolicy (criteria, _data, options) {
-  var req = this.req
-  var res = this.res
+  let req = this.req
+  let res = this.res
   // var user = req.owner
   // var method = PermissionService.getMethod(req)
-  var isResponseArray = R.is(Array, _data)
+  let isResponseArray = R.is(Array, _data)
 
-  var data = isResponseArray ? _data : [_data]
+  let data = isResponseArray ? _data : [_data]
 
   // remove undefined, since that is invalid input for waterline-criteria
   data = data.filter(item => { return item !== undefined })
 
   // langateam/sails-permission#165
-  var permitted = filterObjectsByCriteria(data, criteria)
+  let permitted = filterObjectsByCriteria(data, criteria)
   // var permitted = data.reduce(function (memo, item) {
   //   criteria.some(function (crit) {
   //     var filtered = wlFilter([item], {

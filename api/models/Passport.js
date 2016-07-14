@@ -1,5 +1,6 @@
 'use strict'
-var bcrypt = require('bcryptjs')
+
+const bcrypt = require('bcryptjs')
 
 /**
  * Hash a passport password.
@@ -8,8 +9,8 @@ var bcrypt = require('bcryptjs')
  * @param {Function} next
  */
 function hashPassword (pp, next) {
-  var config = sails.config.waterauth.bcrypt
-  var salt = config.salt || config.rounds
+  let config = sails.config.waterauth.bcrypt
+  let salt = config.salt || config.rounds
   if (pp.password) {
     bcrypt.hash(pp.password, salt, function (err, hash) {
       if (err) {
@@ -39,7 +40,7 @@ function hashPassword (pp, next) {
  * weight as possible as the application only needs to serialize and deserialize
  * the user, but not the authentication data, to and from the session.
  */
-var Passport = {
+const PassportModel = {
   autoCreatedBy: false,
 
   connection: 'local_mongoDB_auth',
@@ -119,4 +120,4 @@ var Passport = {
   }
 }
 
-module.exports = Passport
+module.exports = PassportModel

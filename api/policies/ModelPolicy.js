@@ -1,5 +1,6 @@
 'use strict'
-var R = require('ramda')
+
+const R = require('ramda')
 
 /**
  * Simplified version of sails/lib/hooks/blueprints/actionUtil
@@ -13,7 +14,7 @@ function parseModel (req) {
  * Query the Model that is being acted upon, and set it on the req object.
  */
 module.exports = function ModelPolicy (req, res, next) {
-  var modelCache = sails.hooks.waterauth._modelCache
+  let modelCache = sails.hooks.waterauth._modelCache
   req.options.modelIdentity = parseModel(req)
 
   if (R.isEmpty(req.options.modelIdentity)) {
