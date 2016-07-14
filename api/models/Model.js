@@ -27,10 +27,10 @@ module.exports = {
     },
     attributes: {
       type: 'json'
-    },
-    permissions: {
-      collection: 'Permission',
-      via: 'model'
     }
+    // permissions: {
+    //   collection: 'Permission',
+    //   via: 'model'
+    // }
   }
 }

@@ -139,11 +139,13 @@ class Waterauth extends lib.HookBuilder {
       }
     }, R.values(sails.models)))
 
-    return Promise.all(R.map(model => {
+    var modelPromises = R.map(model => {
       return sails.models.model.findOrCreate({
         name: model.name
       }, model)
-    }, R.values(models)))
+    }, R.values(models))
+
+    return Promise.all(modelPromises)
     .then(models2 => {
       this.models = models2
       this.sails.hooks.waterauth._modelCache = R.indexBy(R.prop('identity'), models2)
