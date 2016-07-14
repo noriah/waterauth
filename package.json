@@ -1,0 +1,41 @@
+{
+  "name": "sails-hook-waterauth",
+  "version": "0.1.0",
+  "description": "Auth and Passport hook",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/noriah/sails-hook-total-auth.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/noriah/sails-hook-total-auth/issues"
+  },
+  "homepage": "https://github.com/noriah/sails-hook-total-auth#readme",
+  "sails": {
+    "isHook": true,
+    "hookName": "waterauth"
+  },
+  "dependencies": {
+    "base64url": "^2.0.0",
+    "bcryptjs": "^2.3.0",
+    "bluebird": "^3.4.1",
+    "crypto": "0.0.3",
+    "fnv-plus": "^1.2.12",
+    "jwt-simple": "^0.5.0",
+    "lodash": "^4.13.1",
+    "node-uuid": "^1.4.7",
+    "passport": "^0.3.2",
+    "passport-google-oauth": "^1.0.0",
+    "passport-http": "^0.3.0",
+    "passport-local": "^1.0.0",
+    "pluralize": "^3.0.0",
+    "require-all": "^2.0.0",
+    "url": "^0.11.0",
+    "waterline-criteria": "^1.0.1"
+  }
+}
