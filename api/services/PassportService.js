@@ -143,7 +143,7 @@ PassportService.connect = function connect (req, query, profile, next) {
           return Passport.create(_.extend({ user: user.id }, query))
         })
         .then(function (pp2) {
-          next(null, user)
+          return next(null, user)
         })
         .catch(next)
 
@@ -162,7 +162,7 @@ PassportService.connect = function connect (req, query, profile, next) {
           return User.findOne(pp.user)
         })
         .then(function (user) {
-          next(null, user)
+          return next(null, user)
         })
         .catch(next)
       }
@@ -173,13 +173,13 @@ PassportService.connect = function connect (req, query, profile, next) {
       if (!pp) {
         return Passport.create(_.extend({ user: req.user.id }, query))
         .then(function (pp2) {
-          next(null, req.user)
+          return next(null, req.user)
         })
         .catch(next)
       // Scenario: The user is a nutjob or spammed the back-button.
       // Action:   Simply pass along the already established session.
       } else {
-        next(null, req.user)
+        return next(null, req.user)
       }
     }
   })
@@ -241,7 +241,7 @@ PassportService.callback = function callback (req, res, next) {
     } else if (action === 'disconnect' && req.user) {
       PassportService.protocols.local.disconnect(req, res, next)
     } else {
-      next(new Error('Invalid action'))
+      return next(new Error('Invalid action'))
     }
   } else {
     if (action === 'disconnect' && req.user) {
@@ -283,7 +283,7 @@ PassportService.disconnect = function disconnect (req, res, next) {
 }
 
 PassportService.passportLib.serializeUser(function (user, next) {
-  next(null, user.id)
+  return next(null, user.id)
 })
 
 PassportService.passportLib.deserializeUser(function (id, next) {
