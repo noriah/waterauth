@@ -4,7 +4,7 @@
   "description": "User Authentication for Sails using Passport and/or JWT",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified... yet\" && exit 1"
+    "test": "node ./node_modules/mocha/bin/mocha test/bootstrap.test.js test/integration/**/*.test.js"
   },
   "repository": {
     "type": "git",
@@ -37,5 +37,8 @@
     "require-all": "^2.0.0",
     "url": "^0.11.0",
     "waterline-criteria": "^1.0.1"
+  },
+  "devDependencies": {
+    "mocha": "^2.5.3"
   }
 }
