@@ -1,4 +1,12 @@
 'use strict'
+
+const local = require('./local')
+const basic = require('./basic')
+const bearer = require('./bearer')
+const oauth = require('./oauth')
+const oauth2 = require('./oauth2')
+const openid = require('./openid')
+
 /**
  * Authentication Protocols
  *
@@ -13,10 +21,10 @@
  * can contain any combination of tokens issued by the authentication API.
  */
 module.exports = {
-  local: require('./local'),
-  basic: require('./basic'),
-  bearer: require('./bearer'),
-  oauth: require('./oauth'),
-  oauth2: require('./oauth2'),
-  openid: require('./openid')
+  local,
+  basic,
+  bearer,
+  oauth,
+  oauth2,
+  openid
 }
