@@ -160,7 +160,7 @@ class Waterauth extends lib.HookBuilder {
       let funcs = R.functions(controller)
 
       if (R.find(R.propEq('identity', controller.identity), this.models)) {
-        funcs = R.uniq(R.concat(defFunctions, funcs))
+        funcs = R.map(R.toLower, R.uniq(R.concat(defFunctions, funcs)))
       }
       // console.log(fixList(funcs, defFunctions))
       return controller && controller.globalId && controller.identity && {

@@ -13,12 +13,12 @@ sails.after('hook:orm:loaded', () => {
 /**
  * PermissionPolicy
  * @depends OwnerPolicy
- * @depends ModelPolicy
+ * @depends ControllerPolicy
  *
  * In order to proceed to the controller, the following verifications
  * must pass:
  * 1. User is logged in (handled previously by sails-auth sessionAuth policy)
- * 2. User has Permission to perform action on Model
+ * 2. User has Permission to perform action on Controller
  * 3. User has Permission to perform action on Attribute (if applicable) [TODO]
  * 4. User is satisfactorily related to the Object's owner (if applicable)
  *
@@ -31,21 +31,24 @@ sails.after('hook:orm:loaded', () => {
  * @param {Function} next
  */
 module.exports = function PermissionPolicy (req, res, next) {
-  var options = {
-    model: req.model,
-    method: req.method,
+  let options = {
+    controller: req.controller,
+    httpMethod: req.method.toLowerCase(),
+    ctrlProperty: req.ctrlProperty,
     user: req.user
   }
 
-  if (req.options.unknownModel) {
+  // console.log(options)
+
+  if (req.options.unknownController) {
     return next()
   }
 
-  PermissionService.findModelPermissions(options)
+  PermissionService.findControllerPermissions(options)
   .then(permissions => {
     sails.log.debug('PermissionPolicy:', permissions.length,
       'permissions grant', req.method,
-      'on', req.model.name,
+      'on', `${req.controller.name}.${req.ctrlProperty}`,
       'for', req.user.username)
 
     if (!permissions || permissions.length === 0) {

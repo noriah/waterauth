@@ -12,7 +12,7 @@ var methodMap = {
 
 var wlFilter = require('waterline-criteria')
 
-var Model
+var Controller
 var Permission
 var Role
 var User
@@ -20,7 +20,7 @@ var User
 sails.after('hook:orm:loaded', () => {
   ({
     models: {
-      model: Model,
+      controller: Controller,
       permission: Permission,
       role: Role,
       user: User
@@ -56,7 +56,7 @@ var PermissionService = {
    * Find objects that some arbitrary action would be performed on, given the
    * same request.
    *
-   * @param options.model
+   * @param options.controller
    * @param options.query
    *
    * TODO this will be less expensive when waterline supports a caching layer
@@ -88,29 +88,34 @@ var PermissionService = {
 
   /**
    * Query Permissions that grant privileges to a role/user on an action for a
-   * model.
+   * controller.
    *
-   * @param options.method
-   * @param options.model
+   * @param options.httpMethod
+   * @param options.ctrlProperty
+   * @param options.controller
    * @param options.user
    */
-  findModelPermissions: function findModelPermissions (options) {
-    var action = PermissionService.getMethod(options.method)
+  findControllerPermissions: function findControllerPermissions (options) {
+    // var httpMethod = PermissionService.getMethod(options.httpMethod)
 
-    // console.log('findModelPermissions options', options)
-    // console.log('findModelPermissions action', action)
+    // console.log('findControllerPermissions options', options)
+    // console.log('findControllerPermissions httpMethod', httpMethod)
 
     return User.findOne(options.user.id)
     .populate('roles')
     .then(function (user) {
-      var permissionCriteria = {
-        model: options.model.id,
-        action: action
-        // or: [
-        //   { role: R.pluck('id', user.roles) },
-        //   { user: user.id }
-        // ]
+      // console.log(user)
+      let permissionCriteria = {
+        controller: options.controller.id,
+        httpMethod: options.httpMethod,
+        ctrlProperty: options.ctrlProperty,
+        or: [
+          { role: R.pluck('id', user.roles) },
+          { user: user.id }
+        ]
       }
+
+      // console.log(permissionCriteria)
 
       return Permission.find(permissionCriteria).populate('criteria')
     })
@@ -185,15 +190,15 @@ var PermissionService = {
       return false
     }
 
-    return R.intersection(blacklist, Object.keys(attributes)).length ? true : false
+    return R.intersection(blacklist, Object.keys(attributes)).length > 0
   },
 
   /**
-   * Return true if the specified model supports the ownership policy false
+   * Return true if the specified controller supports the ownership policy false
    * otherwise.
    */
-  hasOwnershipPolicy: function hasOwnershipPolicy (model) {
-    return model.autoCreatedBy
+  hasOwnershipPolicy: function hasOwnershipPolicy (controller) {
+    return controller.autoCreatedBy
   },
 
   /**
@@ -201,7 +206,7 @@ var PermissionService = {
    */
   getErrorMessage: function getErrorMessage (options) {
     var user = options.user.email || options.user.username
-    return `User ${user} is not permitted to ${options.method} ${options.model.name}`
+    return `User ${user} is not permitted to ${options.httpMethod} ${options.controller.name}.${options.ctrlProperty}`
   },
 
   /**
@@ -216,7 +221,7 @@ var PermissionService = {
    * @param options
    * @param options.name {string} - role name
    * @param options.permissions {permission object, or array of permissions objects}
-   * @param options.permissions.model {string} - the name of the model that the permission is associated with
+   * @param options.permissions.controller {string} - the name of the controller that the permission is associated with
    * @param options.permissions.criteria - optional criteria object
    * @param options.permissions.criteria.where - optional waterline query syntax object for specifying permissions
    * @param options.permissions.criteria.blacklist {string array} - optional attribute blacklist
@@ -230,12 +235,12 @@ var PermissionService = {
       permissions = [permissions]
     }
 
-    // look up the model id based on the model name for each permission, and change it to an id
+    // look up the controller id based on the controller name for each permission, and change it to an id
     ok = ok.then(() => {
       return Promise.all(permissions.map(permission => {
-        return Model.findOne({ name: permission.model })
-        .then(model => {
-          permission.model = model.id
+        return Controller.findOne({ name: permission.controller })
+        .then(controller => {
+          permission.controller = controller.id
           return permission
         })
       }))
@@ -263,8 +268,9 @@ var PermissionService = {
    *                                either this or user should be supplied, but not both
    * @param options.user {string} - the user than that the permission is associated with,
    *                                either this or role should be supplied, but not both
-   * @param options.model {string} - the model name that the permission is associated with
-   * @param options.action {string} - the http action that the permission allows
+   * @param options.controller {string} - the controller name that the permission is associated with
+   * @param options.httpMethod {string} - the http action that the permission allows
+   * @param options.ctrlProperty {string} - the controller function that the permission allows
    * @param options.criteria - optional criteria object
    * @param options.criteria.where - optional waterline query syntax object for specifying permissions
    * @param options.criteria.blacklist {string array} - optional attribute blacklist
@@ -274,7 +280,7 @@ var PermissionService = {
       permissions = [permissions]
     }
 
-    // look up the models based on name, and replace them with ids
+    // look up the controllers based on name, and replace them with ids
     var ok = Promise.all(permissions.map(permission => {
       var findRole = permission.role ? Role.findOne({
         name: permission.role
@@ -282,11 +288,11 @@ var PermissionService = {
       var findUser = permission.user ? User.findOne({
         username: permission.user
       }) : null
-      return Promise.all([findRole, findUser, Model.findOne({
-        name: permission.model
+      return Promise.all([findRole, findUser, Controller.findOne({
+        name: permission.controller
       })])
-      .then(([role, user, model]) => {
-        permission.model = model.id
+      .then(([role, user, controller]) => {
+        permission.controller = controller.id
         if (role && role.id) {
           permission.role = role.id
         } else if (user && user.id) {
@@ -305,9 +311,10 @@ var PermissionService = {
   // langateam/sails-permissions#205
   // Performs checks first so the DB doesn't fill with duplicates
   grantRole: function grantRole (options) {
-    var action = options.action
-    var model = options.model
-    var role = options.role
+    let httpMethod = options.httpMethod
+    let ctrlProperty = options.ctrlProperty
+    let controller = options.controller
+    let role = options.role
     var where
     var blacklist
     if (typeof options.criteria !== 'undefined' && options.criteria) {
@@ -315,10 +322,10 @@ var PermissionService = {
       blacklist = options.criteria.blacklist
     }
 
-    return PermissionService.findRolePermission(action, model, role, where, blacklist)
+    return PermissionService.findRolePermission(httpMethod, ctrlProperty, controller, role, where, blacklist)
     .then(result => {
       if (typeof result === 'undefined' || !result) {
-        var criteria = {}
+        let criteria = {}
         criteria.where = where
         criteria.blacklist = blacklist
 
@@ -327,8 +334,9 @@ var PermissionService = {
         }
 
         return PermissionService.grant({
-          action: action,
-          model: model,
+          httpMethod: httpMethod,
+          ctrlProperty: ctrlProperty,
+          controller: controller,
           role: role,
           criteria: criteria
         })
@@ -338,16 +346,17 @@ var PermissionService = {
     })
   },
 
-  findRolePermission: function findRolePermission (action, model, role, where, blacklist) {
-    var relation = 'role'
-    return Model.findOneByName(model).then(model2 => {
+  findRolePermission: function findRolePermission (httpMethod, ctrlProperty, controller, role, where, blacklist) {
+    let relation = 'role'
+    return Controller.findOneByName(controller).then(controller2 => {
       return Role.findOneByName(role).then(role2 => {
-        if (typeof model2 === 'undefined' || !model2 || typeof role2 === 'undefined' || !role2) {
-          return Promise.reject(new Error(`Role/Model missing. Model: '${model2}' + Role: '${role2}'`))
+        if (typeof controller2 === 'undefined' || !controller2 || typeof role2 === 'undefined' || !role2) {
+          return Promise.reject(new Error(`Role/Controller missing. Controller: '${controller2}' + Role: '${role2}'`))
         } else {
           var promise = Permission.findOne({
-            action: action,
-            model: model2.id,
+            httpMethod: httpMethod,
+            ctrlProperty: ctrlProperty,
+            controller: controller2.id,
             role: role2.id,
             relation: relation})
           var criteria = {}
@@ -441,8 +450,9 @@ var PermissionService = {
    * @param options
    * @param options.role {string} - the name of the role related to the permission.  This, or options.user should be set, but not both.
    * @param options.user {string} - the name of the user related to the permission.  This, or options.role should be set, but not both.
-   * @param options.model {string} - the name of the model for the permission
-   * @param options.action {string} - the name of the action for the permission
+   * @param options.controller {string} - the name of the controller for the permission
+   * @param options.ctrlProperty {string} - the name of the controller function for the permission
+   * @param options.httpMethod {string} - the name of the action for the permission
    * @param options.relation {string} - the type of the relation (owner or role)
    */
   revoke: function revoke (options) {
@@ -452,14 +462,15 @@ var PermissionService = {
     var findUser = options.user ? User.findOne({
       username: options.user
     }) : null
-    var ok = Promise.all([findRole, findUser, Model.findOne({
-      name: options.model
+    var ok = Promise.all([findRole, findUser, Controller.findOne({
+      name: options.controller
     })])
 
-    ok = ok.then(([ role, user, model ]) => {
+    ok = ok.then(([ role, user, controller ]) => {
       var query = {
-        model: model.id,
-        action: options.action,
+        controller: controller.id,
+        httpMethod: options.httpMethod,
+        ctrlProperty: options.ctrlProperty,
         relation: options.relation
       }
 
@@ -481,16 +492,17 @@ var PermissionService = {
    * Check if the user (out of role) is granted to perform action on given objects
    * @param objects
    * @param user
-   * @param action
-   * @param model
+   * @param httpMethod
+   * @param ctrlProperty
+   * @param controller
    * @param body
    * @returns {*}
    */
-  isAllowedToPerformAction: function isAllowedToPerformAction (objects, user, action, model, body) {
+  isAllowedToPerformAction: function isAllowedToPerformAction (objects, user, httpMethod, ctrlProperty, controller, body) {
     if (!R.is(Array, objects)) {
-      return PermissionService.isAllowedToPerformSingle(user.id, action, model, body)(objects)
+      return PermissionService.isAllowedToPerformSingle(user.id, httpMethod, ctrlProperty, controller, body)(objects)
     }
-    return Promise.all(objects.map(PermissionService.isAllowedToPerformSingle(user.id, action, model, body)))
+    return Promise.all(objects.map(PermissionService.isAllowedToPerformSingle(user.id, httpMethod, ctrlProperty, controller, body)))
     .then(allowedArray => {
       return allowedArray.every(allowed => {
         return allowed === true
@@ -501,18 +513,20 @@ var PermissionService = {
   /**
    * Resolve if the user have the permission to perform this action
    * @param user
-   * @param action
-   * @param model
+   * @param httpMethod
+   * @param ctrlProperty
+   * @param controller
    * @param body
    * @returns {Function}
    */
-  isAllowedToPerformSingle: function isAllowedToPerformSingle (user, action, model, body) {
+  isAllowedToPerformSingle: function isAllowedToPerformSingle (user, httpMethod, ctrlProperty, controller, body) {
     return obj => new Promise((resolve, reject) => {
-      Model.findOne({ identity: model })
-      .then(model2 => {
+      Controller.findOne({ identity: controller })
+      .then(controller2 => {
         return Permission.find({
-          model: model2.id,
-          action: action,
+          controller: controller2.id,
+          ctrlProperty: ctrlProperty,
+          httpMethod: httpMethod,
           relation: 'user',
           user: user
         })

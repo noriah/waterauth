@@ -12,10 +12,15 @@ module.exports = function AuditPolicy (req, res, next) {
     ipAddress: ipAddress,
     url: sanitizeRequestUrl(req),
     method: req.method,
+    func: req.ctrlProperty,
     body: R.omit(['password'], req.body),
-    model: req.options.modelIdentity,
+    controller: req.options.controllerIdentity,
     user: (req.user || {}).id
-  }).exec(R.identity)
+  })
+  .then(R.identity)
+  .catch(err => {
+    throw err
+  })
 
   // persist RequestLog entry in the background continue immediately
   next()
