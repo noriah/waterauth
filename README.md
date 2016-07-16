@@ -1,9 +1,9 @@
 # Waterauth
 A User authentication system using Passport and JSON Web Tokens
 
-[![Build Status][travis-image]][travis-url]
+<!-- [![Build Status][travis-image]][travis-url] -->
 [![Code Climate][climate-image]][climate-url]
-[![Coverage Status][coverage-image]][coverage-url]
+<!-- [![Coverage Status][coverage-image]][coverage-url] -->
 [![NPM version][npm-version-image]][npm-url]
 [![NPM downloads][npm-downloads-image]][npm-url]
 [![Dependency Status][dependency-image]][dependency-url]
