@@ -3,18 +3,22 @@
 const R = require('ramda')
 
 var Jwt
+var Permission
 var Role
 var User
+var PermissionService
 var TokenService
 
 sails.after('hook:orm:loaded', () => {
   ({
     models: {
       jwt: Jwt,
+      permission: Permission,
       role: Role,
       user: User
     },
     services: {
+      permissionservice: PermissionService,
       tokenservice: TokenService
     }
   } = sails)
@@ -68,21 +72,27 @@ module.exports = {
   },
 
   tokenPermissions: function tokenPermissions (req, res, next) {
-    User.findOne(req.user.id)
-    .populate('permissions')
-    .populate('roles')
-    .then(user => {
-      return Role.find(R.map(R.prop('id'), user.roles))
-      .populate('permissions')
-      .then(roles => {
-        return { user, roles }
-      })
-    })
-    .then(({user, roles}) => {
-      let permsList = R.append(user.permissions, R.unnest(R.map(R.prop('permissions'), roles)))
-      let perms = R.zipObj(R.map(R.prop('id'), permsList), permsList)
-      return res.json(200, perms)
+    return PermissionService.findUserPermissions(req.user.id)
+    .then(permissions => {
+      return res.json(200, R.pluck('name', permissions))
     })
     .catch(next)
+    // .then(permissions: )
+    // User.findOne(req.user.id)
+    // .populate('permissions')
+    // .populate('roles')
+    // .then(user => {
+    //   return Role.find(R.map(R.prop('id'), user.roles))
+    //   .populate('permissions')
+    //   .then(roles => {
+    //     return { user, roles }
+    //   })
+    // })
+    // .then(({user, roles}) => {
+    //   let permsList = R.append(user.permissions, R.unnest(R.map(R.prop('permissions'), roles)))
+    //   let perms = R.zipObj(R.map(R.prop('id'), permsList), permsList)
+    //   return res.json(200, perms)
+    // })
+    // .catch(next)
   }
 }

@@ -26,12 +26,13 @@ module.exports = function CriteriaPolicy (req, res, next) {
     return next()
   }
 
-  let httpMethod = PermissionService.getMethod(req.method)
+  // let httpMethod = PermissionService.getMethod(req.method)
+  let httpMethod = req.method
 
   let body = req.body || req.query
 
   // if we are creating, we don't need to query the db, just check the where clause vs the passed in data
-  if (httpMethod === 'create') {
+  if (httpMethod === 'POST') {
     if (!PermissionService.hasPassingCriteria(body, permissions, body)) {
       return res.send(403, {
         error: 'Can\'t create this object, because of failing where clause'
@@ -41,7 +42,7 @@ module.exports = function CriteriaPolicy (req, res, next) {
   }
 
   // set up response filters if we are not mutating an existing object
-  if (!R.contains(httpMethod, ['update', 'delete'])) {
+  if (!R.contains(httpMethod, ['PUT', 'DELETE'])) {
     // get all of the where clauses and blacklists into one flat array
     // if a permission has no criteria then it is always true
     let criteria = _.compact(R.flatten(
@@ -75,7 +76,7 @@ module.exports = function CriteriaPolicy (req, res, next) {
   PermissionService.findTargetObjects(req)
     .then(objects => {
       // attributes are not important for a delete request
-      if (httpMethod === 'delete') {
+      if (httpMethod === 'DELETE') {
         body = undefined
       }
 

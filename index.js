@@ -44,7 +44,7 @@ R.functions = function functions (object) {
 
 var permissionPolicies = [
   'TokenAuth',
-  'ModelPolicy',
+  // 'ModelPolicy',
   // 'OwnerPolicy',
   'PermissionPolicy',
   'RolePolicy'
@@ -226,6 +226,12 @@ class Waterauth extends lib.HookBuilder {
     })
   }
 
+  createUpdateDefaultRoles () {
+    sails.log.verbose('waterauth is creating the default roles')
+
+
+  }
+
   initializePermissions () {
     sails.log.verbose('waterauth is finally setting up permissions...')
 
@@ -243,6 +249,9 @@ class Waterauth extends lib.HookBuilder {
     // })
     .then(admin => {
       lib.permission.create(this.roles, this.controllers, admin, this.sails.config.waterauth)
+    })
+    .then(() => {
+      lib.permission.createDefaultRoles(lib.roleConfig, this.controllers)
     })
   }
 }

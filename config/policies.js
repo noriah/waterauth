@@ -35,7 +35,7 @@ module.exports.policies = {
     'AuditPolicy',
     // 'OwnerPolicy',
     'PermissionPolicy',
-    'RolePolicy',
+    // 'RolePolicy',
     'CriteriaPolicy'
   ],
 
@@ -56,6 +56,7 @@ module.exports.policies = {
     newToken: [
       'PassportPolicy',
       'SessionAuth'
+      // 'UserPolicy'
     ],
 
     tokenPermissions: [
