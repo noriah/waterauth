@@ -42,7 +42,7 @@ module.exports = {
       unique: true
     },
 
-    action: {
+    httpMethod: {
       type: 'string',
       index: true,
       notNull: true,
@@ -58,7 +58,7 @@ module.exports = {
       ]
     },
 
-    method: {
+    ctrlProperty: {
       type: 'string',
       notNull: true
     },

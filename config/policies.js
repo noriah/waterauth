@@ -30,7 +30,7 @@ module.exports.policies = {
 
   '*': [
     'TokenAuth',
-    'ModelPolicy',
+    // 'ModelPolicy',
     'ControllerPolicy',
     'AuditPolicy',
     // 'OwnerPolicy',

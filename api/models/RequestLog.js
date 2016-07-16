@@ -21,21 +21,24 @@ module.exports = {
     ipAddress: {
       type: 'string'
     },
-    method: {
-      type: 'string'
-    },
     url: {
       type: 'string',
       url: true
     },
+    method: {
+      type: 'string'
+    },
+    func: {
+      type: 'string'
+    },
     body: {
       type: 'json'
     },
+    controller: {
+      type: 'string'
+    },
     user: {
       model: 'User'
-    },
-    model: {
-      type: 'string'
     }
   }
 }

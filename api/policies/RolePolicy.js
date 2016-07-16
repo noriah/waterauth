@@ -2,13 +2,13 @@
 
 const R = require('ramda')
 
-var ModelService
+var ControllerService
 var PermissionService
 
 sails.after('hook:orm:loaded', () => {
   ({
     services: {
-      modelservice: ModelService,
+      modelservice: ControllerService,
       permissionservice: PermissionService
     }
   } = sails)
@@ -18,7 +18,7 @@ sails.after('hook:orm:loaded', () => {
  * RolePolicy
  * @depends PermissionPolicy
  * @depends OwnerPolicy
- * @depends ModelPolicy
+ * @depends ControllerPolicy
  *
  * Verify that User is satisfactorily related to the Object's owner.
  * By this point, we know we have some permissions related to the action and object
@@ -27,7 +27,8 @@ sails.after('hook:orm:loaded', () => {
 module.exports = function RolePolicy (req, res, next) {
   let permissions = req.permissions
   let relations = R.groupBy(R.prop('relation'), permissions)
-  let action = PermissionService.getMethod(req.method)
+  let httpMethod = PermissionService.getMethod(req.method)
+  let ctrlProperty = req.ctrlProperty
 
   // continue if there exist role Permissions which grant the asserted privilege
   if (!R.isEmpty(relations.role)) {
@@ -43,28 +44,28 @@ module.exports = function RolePolicy (req, res, next) {
    * We don't want to take this same course of action for an update or delete action, we would prefer to fail the entire request.
    * There is no notion of 'create' for an owner permission, so it is not relevant here.
    */
-  if (!R.contains(action, ['update', 'delete']) && req.options.modelDefinition.attributes.owner) {
-    // Some parsing must happen on the query down the line,
-    // as req.query has no impact on the results from PermissionService.findTargetObjects.
-    // I had to look at the actionUtil parseCriteria method to see where to augment the criteria
-    // langateam/sails-permissions#230
-    req.params.where = req.params.all().where || {}
-    req.params.where.owner = req.user.id
-    req.query.owner = req.user.id
-    R.is(Object, req.body) && (req.body.owner = req.user.id)
-  }
+  // if (!R.contains(action, ['update', 'delete']) && req.options.modelDefinition.attributes.owner) {
+  //   // Some parsing must happen on the query down the line,
+  //   // as req.query has no impact on the results from PermissionService.findTargetObjects.
+  //   // I had to look at the actionUtil parseCriteria method to see where to augment the criteria
+  //   // langateam/sails-permissions#230
+  //   req.params.where = req.params.all().where || {}
+  //   req.params.where.owner = req.user.id
+  //   req.query.owner = req.user.id
+  //   R.is(Object, req.body) && (req.body.owner = req.user.id)
+  // }
 
   PermissionService.findTargetObjects(req)
   .then(objects => {
       // PermissionService.isAllowedToPerformAction checks if the user has 'user' based permissions (vs role or owner based permissions)
-    return PermissionService.isAllowedToPerformAction(objects, req.user, action, ModelService.getTargetModelName(req), req.body)
+    return PermissionService.isAllowedToPerformAction(objects, req.user, httpMethod, ctrlProperty, ControllerService.getTargetControllerName(req), req.body)
       .then(hasUserPermissions => {
         if (hasUserPermissions) {
           return next()
         }
         if (PermissionService.hasForeignObjects(objects, req.user)) {
           return res.send(403, {
-            error: 'Cannot perform action [' + action + '] on foreign object'
+            error: 'Cannot perform action [' + httpMethod + '] on foreign object'
           })
         }
         next()
