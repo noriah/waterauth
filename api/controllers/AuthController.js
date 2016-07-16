@@ -18,6 +18,8 @@ sails.after('hook:orm:loaded', () => {
 
 module.exports = {
 
+  _config: { actions: false, shortcuts: false, rest: false },
+
   /**
    * Log out a user and return them to the homepage
    *

@@ -3,8 +3,8 @@
 const R = require('ramda')
 
 var Jwt
-var Permission
-var Role
+// var Permission
+// var Role
 var User
 var PermissionService
 var TokenService
@@ -13,8 +13,8 @@ sails.after('hook:orm:loaded', () => {
   ({
     models: {
       jwt: Jwt,
-      permission: Permission,
-      role: Role,
+      // permission: Permission,
+      // role: Role,
       user: User
     },
     services: {
@@ -25,6 +25,7 @@ sails.after('hook:orm:loaded', () => {
 })
 
 module.exports = {
+  _config: { actions: false, shortcuts: false, rest: false },
   // https://github.com/waterlock/waterlock/blob/master/lib/controllers/actions/jwt.js
   newToken: function newToken (req, res, next) {
     TokenService.createToken(req, res, req.user)
@@ -45,8 +46,30 @@ module.exports = {
         .populate('roles', {active: true})
         .then(user => {
           tokenData.roles = R.pluck('name', user.roles)
+
+          if (sails.config.environment === 'production') {
+            tokenData.roles = R.pluck('name', tokenData.roles)
+          }
+
           return tokenData
         })
+      }
+
+      return tokenData
+    })
+    .then(tokenData => {
+      if (sails.config.jwt.includePermissions) {
+        return PermissionService.findUserPermissions(req.user.id)
+        .then(permissions => {
+          tokenData.permissions = R.pluck('name', permissions)
+
+          if (sails.config.environment === 'production') {
+            tokenData.permissions = R.pluck('name', tokenData.permissions)
+          }
+
+          return tokenData
+        })
+        .catch(next)
       }
 
       return tokenData
@@ -74,7 +97,11 @@ module.exports = {
   tokenPermissions: function tokenPermissions (req, res, next) {
     return PermissionService.findUserPermissions(req.user.id)
     .then(permissions => {
-      return res.json(200, R.pluck('name', permissions))
+      let result = permissions
+      if (sails.config.environment === 'production') {
+        result = R.pluck('name', permissions)
+      }
+      return res.json(200, result)
     })
     .catch(next)
     // .then(permissions: )

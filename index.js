@@ -55,6 +55,35 @@ class Waterauth extends lib.HookBuilder {
   constructor (sails) {
     super(sails, module)
     sails.utils = lib.utils
+    this.myroutes = []
+
+    sails.on('router:bind', item => {
+      this.myroutes.push(item)
+    })
+    sails.after('ready', () => {
+      let permissionRoutes = R.groupBy(route => {
+        return route.options.controller || 'null'
+      }, this.myroutes)
+
+      permissionRoutes = R.map(route => {
+        return R.groupBy(route2 => {
+          return route2.options.action
+        }, route)
+      }, permissionRoutes)
+
+      permissionRoutes = R.map(controllers => {
+        return R.map(functions => {
+          return R.filter(item => {
+            return R.contains(item, ['get', 'post', 'put', 'delete'])
+          }, R.keys(R.groupBy(verb => verb.verb, functions)))
+        }, controllers)
+      }, permissionRoutes)
+
+      lib.permission.create(this.roles, this.controllers, this.sails.config.waterauth, R.omit(['null'], permissionRoutes))
+      .then(() => {
+        this.sails.log.verbose('Waterauth setup complete')
+      })
+    })
   }
 
   configure () {
@@ -104,6 +133,11 @@ class Waterauth extends lib.HookBuilder {
     ])
   }
 
+  // finalizeRoutes () {
+
+  //   console.log(R.omit(['null'], routes))
+  // }
+
   // installModelOwnership () {
   //   if (this.sails.config.models.autoCreatedBy === false) {
   //     return
@@ -129,7 +163,7 @@ class Waterauth extends lib.HookBuilder {
   // }
 
   syncModels () {
-    sails.log.verbose('waterauth is syncing waterline models..')
+    sails.log.verbose('Waterauth is syncing waterline models..')
 
     let models = R.noFalsy(R.map(model => {
       return model && model.globalId && model.identity && {
@@ -154,7 +188,7 @@ class Waterauth extends lib.HookBuilder {
   }
 
   syncControllers () {
-    sails.log.verbose('waterauth is now syncing waterline controllers...')
+    sails.log.verbose('Waterauth is now syncing waterline controllers...')
 
     let controllers = R.noFalsy(R.map(controller => {
       let funcs = R.functions(controller)
@@ -174,6 +208,15 @@ class Waterauth extends lib.HookBuilder {
       return sails.models.controller.findOrCreate({
         name: controller.name
       }, controller)
+      .then(ctrl => {
+        if (R.difference(controller.functions, ctrl.functions).length !== 0 ||
+          R.difference(ctrl.functions, controller.functions).length !== 0) {
+          ctrl.functions = controller.functions
+          return ctrl.save()
+          .then(() => ctrl)
+        }
+        return ctrl
+      })
     }, R.values(controllers)))
     .then(controllers2 => {
       this.controllers = controllers2
@@ -196,7 +239,7 @@ class Waterauth extends lib.HookBuilder {
   }
 
   createUpdateAdmin () {
-    sails.log.verbose('waterauth is updating the admin user')
+    sails.log.verbose('Waterauth is updating the admin user')
 
     let userModel = R.find(R.propEq('name', 'User'), this.models)
     let keys = ['adminUsername', 'adminPassword', 'adminEmail']
@@ -227,32 +270,35 @@ class Waterauth extends lib.HookBuilder {
   }
 
   createUpdateDefaultRoles () {
-    sails.log.verbose('waterauth is creating the default roles')
-
-
+    sails.log.verbose('Waterauth is creating the default roles')
   }
 
   initializePermissions () {
-    sails.log.verbose('waterauth is finally setting up permissions...')
+    sails.log.verbose('Waterauth is finally setting up permissions...')
 
-    return this.sails.models.user.findOne({
-      username: this.sails.config.waterauth.adminUsername
-    })
-    // .then(user => {
-    //   if (user.createdBy !== user.id || user.owner !== user.id) {
-    //     user.createdBy = user.id
-    //     user.owner = user.id
-    //     this.sails.log.debug('waterauth: updating admin user:', user)
-    //     return user.save()
-    //   }
-    //   return user
+    // console.log(sails.getRouteFor('UserController.me'))
+
+    // return new Promise((resolve, reject) => {
+    // .then(() => {
+    sails.log.verbose('Waterauth is creating the default roles')
+    return lib.permission.createDefaultRoles(lib.roleConfig, this.controllers)
     // })
-    .then(admin => {
-      lib.permission.create(this.roles, this.controllers, admin, this.sails.config.waterauth)
-    })
-    .then(() => {
-      lib.permission.createDefaultRoles(lib.roleConfig, this.controllers)
-    })
+
+    // return this.sails.models.user.findOne({
+    //   username: this.sails.config.waterauth.adminUsername
+    // })
+    // // .then(user => {
+    // //   if (user.createdBy !== user.id || user.owner !== user.id) {
+    // //     user.createdBy = user.id
+    // //     user.owner = user.id
+    // //     this.sails.log.debug('waterauth: updating admin user:', user)
+    // //     return user.save()
+    // //   }
+    // //   return user
+    // // })
+    // .then(admin => {
+    //   return lib.permission.create(this.roles, this.controllers, this.sails.config.waterauth, R.omit(['null'], permissionRoutes))
+    // })
   }
 }
 

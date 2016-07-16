@@ -19,7 +19,9 @@ module.exports.routes = {
   'post /token/roles': 'TokenController.tokenRoles',
   'get /token/roles': 'TokenController.tokenRoles',
   'post /token/permissions': 'TokenController.tokenPermissions',
-  'get /token/permissions': 'TokenController.tokenPermissions'
+  'get /token/permissions': 'TokenController.tokenPermissions',
+
+  'delete /role/:rolename/users/:username': 'RoleController.removeUserFromRole'
 
   // '/token/uses/:token': 'TokenController'
 

@@ -6,6 +6,10 @@
  */
 
 module.exports = {
+  _config: { actions: false, shortcuts: false, rest: false },
 
+  removeUserFromRole: function removeUserFromRole (req, res, next) {
+    next()
+  }
 }
 
