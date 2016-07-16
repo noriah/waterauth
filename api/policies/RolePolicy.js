@@ -17,7 +17,6 @@ sails.after('hook:orm:loaded', () => {
 /**
  * RolePolicy
  * @depends PermissionPolicy
- * @depends OwnerPolicy
  * @depends ControllerPolicy
  *
  * Verify that User is satisfactorily related to the Object's owner.
@@ -27,7 +26,7 @@ sails.after('hook:orm:loaded', () => {
 module.exports = function RolePolicy (req, res, next) {
   let permissions = req.permissions
   let relations = R.groupBy(R.prop('relation'), permissions)
-  let httpMethod = PermissionService.getMethod(req.method)
+  let httpMethod = req.method
   let ctrlProperty = req.ctrlProperty
 
   // continue if there exist role Permissions which grant the asserted privilege

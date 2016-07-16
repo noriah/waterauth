@@ -102,7 +102,7 @@ var PermissionService = {
     // console.log('findControllerPermissions httpMethod', httpMethod)
 
     return User.findOne(options.user.id)
-    .populate('roles')
+    .populate('roles', {active: true})
     .then(function (user) {
       // console.log(user)
       let permissionCriteria = {
@@ -116,6 +116,21 @@ var PermissionService = {
       }
 
       // console.log(permissionCriteria)
+
+      return Permission.find(permissionCriteria).populate('criteria')
+    })
+  },
+
+  findUserPermissions: function findUserPermissions (userid) {
+    return User.findOne(userid)
+    .populate('roles', {active: true})
+    .then(user => {
+      let permissionCriteria = {
+        or: [
+          { role: R.pluck('id', user.roles) },
+          { user: user.id }
+        ]
+      }
 
       return Permission.find(permissionCriteria).populate('criteria')
     })
@@ -152,11 +167,11 @@ var PermissionService = {
           memo = memo.concat(perm.criteria)
         }
 
-        if (perm.relation === 'owner') {
-          perm.criteria.forEach(criteria2 => {
-            criteria2.owner = true
-          })
-        }
+        // if (perm.relation === 'owner') {
+        //   perm.criteria.forEach(criteria2 => {
+        //     criteria2.owner = true
+        //   })
+        // }
         return memo
       }
     }, [])
@@ -176,11 +191,12 @@ var PermissionService = {
           where: criteria2.where
         }).results
         var hasUnpermittedAttributes = PermissionService.hasUnpermittedAttributes(attributes, criteria2.blacklist)
-        var hasOwnership = true // edge case for scenario where a user has some permissions that are owner based and some that are role based
-        if (criteria2.owner) {
-          hasOwnership = !PermissionService.isForeignObject(user)(obj)
-        }
-        return match.length === 1 && !hasUnpermittedAttributes && hasOwnership
+        // var hasOwnership = true // edge case for scenario where a user has some permissions that are owner based and some that are role based
+        // if (criteria2.owner) {
+        //   hasOwnership = !PermissionService.isForeignObject(user)(obj)
+        // }
+        // && hasOwnership
+        return match.length === 1 && !hasUnpermittedAttributes
       })
     })
   },
@@ -197,9 +213,9 @@ var PermissionService = {
    * Return true if the specified controller supports the ownership policy false
    * otherwise.
    */
-  hasOwnershipPolicy: function hasOwnershipPolicy (controller) {
-    return controller.autoCreatedBy
-  },
+  // hasOwnershipPolicy: function hasOwnershipPolicy (controller) {
+  //   return controller.autoCreatedBy
+  // },
 
   /**
    * Build an error message

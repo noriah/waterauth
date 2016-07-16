@@ -43,6 +43,7 @@ module.exports = function TokenAuthPolicy (req, res, next) {
     req.token.id = tObj.id
     req.token.owner = tObj.owner
     return User.findOne(tObj.owner)
+    .populate('roles')
   })
   .then(user => {
     if (!user) {

@@ -33,7 +33,7 @@ sails.after('hook:orm:loaded', () => {
 module.exports = function PermissionPolicy (req, res, next) {
   let options = {
     controller: req.controller,
-    httpMethod: req.method.toLowerCase(),
+    httpMethod: req.method,
     ctrlProperty: req.ctrlProperty,
     user: req.user
   }
