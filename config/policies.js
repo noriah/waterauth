@@ -50,6 +50,13 @@ module.exports.policies = {
     ]
   },
 
+  RoleController: {
+    '*': [
+      'TokenAuth',
+      'AuditPolicy'
+    ]
+  },
+
   TokenController: {
     '*': ['TokenAuth'],
 

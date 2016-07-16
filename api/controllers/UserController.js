@@ -17,6 +17,7 @@ sails.after('hook:orm:loaded', () => {
 })
 
 module.exports = {
+  _config: { actions: false, shortcuts: false, rest: false },
   /**
    * @override
    */
