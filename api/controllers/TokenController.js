@@ -26,7 +26,6 @@ sails.after('hook:orm:loaded', () => {
 
 module.exports = {
   _config: { actions: false, shortcuts: false, rest: false },
-  // https://github.com/waterlock/waterlock/blob/master/lib/controllers/actions/jwt.js
   newToken: function newToken (req, res, next) {
     TokenService.createToken(req, res, req.user)
     .then(tokenData => {

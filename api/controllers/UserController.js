@@ -18,6 +18,19 @@ sails.after('hook:orm:loaded', () => {
 
 module.exports = {
   _config: { actions: false, shortcuts: false, rest: false },
+
+  getUser: function getUser (req, res, next) {
+    next()
+  },
+
+  getUserRoles: function getUserRoles (req, res, next) {
+    next()
+  },
+
+  getUserPermissions: function getUserPermissions (req, res, next) {
+    next()
+  },
+
   /**
    * @override
    */
@@ -43,4 +56,3 @@ module.exports = {
     res.json(200, req.user)
   }
 }
-
