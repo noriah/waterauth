@@ -46,8 +46,9 @@ var permissionPolicies = [
   'TokenAuth',
   // 'ModelPolicy',
   // 'OwnerPolicy',
-  'PermissionPolicy',
-  'RolePolicy'
+  'ControllerPolicy',
+  'PermissionPolicy'
+  // 'RolePolicy'
 ]
 
 class Waterauth extends lib.HookBuilder {
@@ -59,30 +60,6 @@ class Waterauth extends lib.HookBuilder {
 
     sails.on('router:bind', item => {
       this.myroutes.push(item)
-    })
-    sails.after('ready', () => {
-      let permissionRoutes = R.groupBy(route => {
-        return route.options.controller || 'null'
-      }, this.myroutes)
-
-      permissionRoutes = R.map(route => {
-        return R.groupBy(route2 => {
-          return route2.options.action
-        }, route)
-      }, permissionRoutes)
-
-      permissionRoutes = R.map(controllers => {
-        return R.map(functions => {
-          return R.filter(item => {
-            return R.contains(item, ['get', 'post', 'put', 'delete'])
-          }, R.keys(R.groupBy(verb => verb.verb, functions)))
-        }, controllers)
-      }, permissionRoutes)
-
-      lib.permission.create(this.roles, this.controllers, this.sails.config.waterauth, R.omit(['null'], permissionRoutes))
-      .then(() => {
-        this.sails.log.verbose('Waterauth setup complete')
-      })
     })
   }
 
@@ -115,7 +92,10 @@ class Waterauth extends lib.HookBuilder {
       .then(() => this.updateRoles())
       .then(() => this.createUpdateAdmin())
       .then(() => this.initializePermissions())
-      .then(() => next())
+      .then(() => {
+        this.sails.log.verbose('Waterauth setup complete')
+        next()
+      })
       .catch(err => {
         this.sails.log.error(err)
         sentry.catptureExcpeiton(err)
@@ -275,6 +255,7 @@ class Waterauth extends lib.HookBuilder {
 
   initializePermissions () {
     sails.log.verbose('Waterauth is finally setting up permissions...')
+    lib.permission.create(this.roles, this.controllers, this.sails.config.waterauth)
 
     // console.log(sails.getRouteFor('UserController.me'))
 
@@ -299,6 +280,31 @@ class Waterauth extends lib.HookBuilder {
     // .then(admin => {
     //   return lib.permission.create(this.roles, this.controllers, this.sails.config.waterauth, R.omit(['null'], permissionRoutes))
     // })
+    // sails.after('ready', () => {
+    //   let permissionRoutes = R.groupBy(route => {
+    //     return route.options.controller || 'null'
+    //   }, this.myroutes)
+
+    //   permissionRoutes = R.map(route => {
+    //     return R.groupBy(route2 => {
+    //       return route2.options.action
+    //     }, route)
+    //   }, permissionRoutes)
+
+    //   permissionRoutes = R.map(controllers => {
+    //     return R.map(functions => {
+    //       return R.filter(item => {
+    //         return R.contains(item, ['get', 'post', 'put', 'delete'])
+    //       }, R.keys(R.groupBy(verb => verb.verb, functions)))
+    //     }, controllers)
+    //   }, permissionRoutes)
+
+    //   lib.permission.create(this.roles, this.controllers, this.sails.config.waterauth, R.omit(['null'], permissionRoutes))
+    //   .then(() => {
+
+    //   })
+    // })
+
   }
 }
 

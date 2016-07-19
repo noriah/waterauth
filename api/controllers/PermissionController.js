@@ -6,7 +6,17 @@
  */
 
 module.exports = {
-  _config: { actions: false, shortcuts: false, rest: false }
+  _config: { actions: false, shortcuts: false, rest: false },
 
+  getObjectsWithPermission: function getObjectsWithPermission (req, res, next) {
+    next()
+  },
+
+  getUsersWithPermission: function getUsersWithPermission (req, res, next) {
+    next()
+  },
+
+  getRolesWithPermission: function getRolesWithPermission (req, res, next) {
+    next()
+  }
 }
-
