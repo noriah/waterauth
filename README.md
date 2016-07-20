@@ -7,10 +7,16 @@ A User authentication system using Passport and JSON Web Tokens
 [![NPM version][npm-version-image]][npm-url]
 [![NPM downloads][npm-downloads-image]][npm-url]
 [![Dependency Status][dependency-image]][dependency-url]
+[![License MIT][license-image]][license-url]
+
+
+---
+
+License: MIT (See [LICENSE][license-url])
 
 
 [license-image]: http://img.shields.io/badge/license-MIT-blue.svg
-[license-url]: LICENSE
+[license-url]: LICENSE.md
 
 [npm-url]: https://npmjs.org/package/waterauth
 [npm-version-image]: http://img.shields.io/npm/v/waterauth.svg

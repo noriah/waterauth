@@ -1,13 +1,12 @@
 'use strict'
-
-const R = require('ramda')
-
 /**
  * UserController
  *
  * @description :: Server-side logic for managing Users
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
+
+const R = require('ramda')
 
 var Permission
 var User
@@ -32,10 +31,10 @@ module.exports = {
     let username = req.params('username')
     return User.findOne({username})
     .then(user => {
-      if (R.isNil(user) || R.isEmpty(user)) {
-        return res.json(404, {error: 'user not found'})
+      if (R.isNil(user)) {
+        return res.json(404, {error: 'E_USER_NOT_FOUND'})
       }
-      return res.json(200, user)
+      return res.json(200, {user})
     })
     .catch(next)
   },
@@ -45,13 +44,13 @@ module.exports = {
     return User.findOne({username})
     .populate('roles', {active: true})
     .then(user => {
-      if (R.isNil(user) || R.isEmpty(user)) {
-        return res.json(404, {error: 'user not found'})
+      if (R.isNil(user)) {
+        return res.json(404, {error: 'E_USER_NOT_FOUND'})
       }
-      if (sails.config.env === 'production') {
-        return res.json(200, R.pluck('name', user.roles))
+      if (sails.config.environment === 'production') {
+        return res.json(200, {roles: R.pluck('name', user.roles)})
       }
-      return res.json(200, user.roles)
+      return res.json(200, {roles: user.roles})
     })
     .catch(next)
   },
@@ -61,8 +60,8 @@ module.exports = {
     return User.findOne({username})
     .populate('roles', {active: true})
     .then(user => {
-      if (R.isNil(user) || R.isEmpty(user)) {
-        return res.json(404, {error: 'user not found'})
+      if (R.isNil(user)) {
+        return res.json(404, {error: 'E_USER_NOT_FOUND'})
       }
 
       return Permission.find({
@@ -72,10 +71,10 @@ module.exports = {
         ]
       })
       .then(permissions => {
-        if (sails.config.env === 'production') {
-          return res.json(200, R.pluck('name', permissions))
+        if (sails.config.environment === 'production') {
+          return res.json(200, {permissions: R.pluck('name', permissions)})
         }
-        return res.json(200, permissions)
+        return res.json(200, {permissions})
       })
     })
     .catch(next)

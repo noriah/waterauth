@@ -37,7 +37,7 @@ module.exports = {
     name: {
       type: 'string',
       index: true,
-      unique: true
+      noNull: true
     },
 
     httpMethod: {
@@ -58,6 +58,7 @@ module.exports = {
 
     ctrlProperty: {
       type: 'string',
+      index: true,
       notNull: true
     },
 
