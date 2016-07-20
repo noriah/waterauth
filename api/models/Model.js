@@ -13,8 +13,6 @@ module.exports = {
   autoCreatedAt: false,
   autoUpdatedAt: false,
 
-  connection: 'local_mongoDB_auth',
-
   attributes: {
     name: {
       type: 'string',

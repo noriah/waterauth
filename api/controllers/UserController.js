@@ -1,4 +1,7 @@
 'use strict'
+
+const R = require('ramda')
+
 /**
  * UserController
  *
@@ -6,10 +9,16 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
+var Permission
+var User
 var PassportService
 
 sails.after('hook:orm:loaded', () => {
   ({
+    models: {
+      permission: Permission,
+      user: User
+    },
     services: {
       passportservice: PassportService
     }
@@ -20,15 +29,56 @@ module.exports = {
   _config: { actions: false, shortcuts: false, rest: false },
 
   getUser: function getUser (req, res, next) {
-    next()
+    let username = req.params('username')
+    return User.findOne({username})
+    .then(user => {
+      if (R.isNil(user) || R.isEmpty(user)) {
+        return res.json(404, {error: 'user not found'})
+      }
+      return res.json(200, user)
+    })
+    .catch(next)
   },
 
   getUserRoles: function getUserRoles (req, res, next) {
-    next()
+    let username = req.params('username')
+    return User.findOne({username})
+    .populate('roles', {active: true})
+    .then(user => {
+      if (R.isNil(user) || R.isEmpty(user)) {
+        return res.json(404, {error: 'user not found'})
+      }
+      if (sails.config.env === 'production') {
+        return res.json(200, R.pluck('name', user.roles))
+      }
+      return res.json(200, user.roles)
+    })
+    .catch(next)
   },
 
   getUserPermissions: function getUserPermissions (req, res, next) {
-    next()
+    let username = req.params('username')
+    return User.findOne({username})
+    .populate('roles', {active: true})
+    .then(user => {
+      if (R.isNil(user) || R.isEmpty(user)) {
+        return res.json(404, {error: 'user not found'})
+      }
+
+      return Permission.find({
+        or: [
+          { role: R.pluck('id', user.roles) },
+          { user: user.id }
+        ]
+      })
+      .then(permissions => {
+        if (sails.config.env === 'production') {
+          return res.json(200, R.pluck('name', permissions))
+        }
+        return res.json(200, permissions)
+      })
+    })
+    .catch(next)
   },
 
   /**

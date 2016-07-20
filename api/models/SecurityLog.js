@@ -11,8 +11,6 @@ module.exports = {
   autoUpdatedAt: false,
   autoCreatedAt: false,
 
-  connection: 'local_mongoDB_auth',
-
   attributes: {
     request: {
       model: 'RequestLog',

@@ -12,8 +12,6 @@
 module.exports = {
   autoCreatedBy: false,
 
-  connection: 'local_mongoDB_auth',
-
   description: 'Specifies more granular limits on a permission',
 
   attributes: {

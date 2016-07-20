@@ -22,6 +22,8 @@ module.exports.jwt = {
 
   includeRoles: false,
 
+  includePermissions: false,
+
   trackTokens: true,
 
   clockTolerance: 10
