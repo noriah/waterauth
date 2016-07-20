@@ -39,9 +39,11 @@ module.exports.policies = {
     'CriteriaPolicy'
   ],
 
-  AuthController: [
-    'PassportPolicy'
-  ],
+  AuthController: {
+    '*': [
+      'PassportPolicy'
+    ]
+  },
 
   UserController: {
     me: [

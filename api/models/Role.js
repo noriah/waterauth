@@ -8,6 +8,12 @@
  *
  * @see <http://www.postgresql.org/docs/9.3/static/sql-grant.html>
  */
+
+function setRoleIdentity (role, next) {
+  role.identity = role.name.toLowerCase()
+  next()
+}
+
 module.exports = {
   autoCreatedBy: false,
 
@@ -16,9 +22,16 @@ module.exports = {
   attributes: {
     name: {
       type: 'string',
+      alpha: true,
       index: true,
       notNull: true,
       unique: true
+    },
+    identity: {
+      type: 'string'
+    },
+    description: {
+      type: 'string'
     },
     users: {
       collection: 'User',
@@ -29,12 +42,16 @@ module.exports = {
       defaultsTo: true,
       index: true
     },
-    // permissions: {
-    //   collection: 'Permission',
-    //   via: 'role'
-    // }
     permissions: {
       collection: 'Permission'
     }
-  }
+  },
+
+  beforeCreate: [
+    setRoleIdentity
+  ],
+
+  beforeUpdate: [
+    setRoleIdentity
+  ]
 }

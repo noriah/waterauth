@@ -3,6 +3,8 @@ module.exports.waterauth = {
     rounds: 8
   },
 
+  modelConnectionName: '',
+
   adminFirstName: process.env.ADMIN_FNAME || 'Admin',
   adminLastName: process.env.ADMIN_LNAME || 'McAdminFace',
   adminEmail: process.env.ADMIN_EMAIL || 'admin@example.com',
