@@ -4,8 +4,6 @@ const crypto = require('crypto')
 
 /** @module User */
 module.exports = {
-  connection: 'local_mongoDB_auth',
-
   attributes: {
     username: {
       type: 'string',

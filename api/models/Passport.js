@@ -43,8 +43,6 @@ function hashPassword (pp, next) {
 const PassportModel = {
   autoCreatedBy: false,
 
-  connection: 'local_mongoDB_auth',
-
   attributes: {
     // Required field: Protocol
     //

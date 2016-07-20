@@ -11,8 +11,6 @@
 module.exports = {
   autoCreatedBy: false,
 
-  connection: 'local_mongoDB_auth',
-
   description: 'Confers `Permission` to `User`',
 
   attributes: {

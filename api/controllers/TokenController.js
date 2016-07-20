@@ -26,6 +26,7 @@ sails.after('hook:orm:loaded', () => {
 
 module.exports = {
   _config: { actions: false, shortcuts: false, rest: false },
+
   newToken: function newToken (req, res, next) {
     TokenService.createToken(req, res, req.user)
     .then(tokenData => {

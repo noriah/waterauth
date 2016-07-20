@@ -11,8 +11,6 @@ module.exports = {
   autoCreatedBy: false,
   autoUpdatedAt: false,
 
-  connection: 'local_mongoDB_auth',
-
   attributes: {
     id: {
       type: 'string',

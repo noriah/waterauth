@@ -13,8 +13,6 @@ module.exports = {
   autoCreatedAt: false,
   autoUpdatedAt: false,
 
-  connection: 'local_mongoDB_auth',
-
   description: [
     'Defines a particular `action` that a `Role` can perform on a `Model`.',
     'A `User` can perform an `action` on a `Model` by having a `Role` which',

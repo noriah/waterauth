@@ -39,9 +39,9 @@ module.exports.policies = {
     'CriteriaPolicy'
   ],
 
-  AuthController: {
-    '*': ['PassportPolicy']
-  },
+  AuthController: [
+    'PassportPolicy'
+  ],
 
   UserController: {
     me: [
@@ -50,17 +50,6 @@ module.exports.policies = {
     ]
   },
 
-  // RoleController: {
-  //   '*': [
-  //     'TokenAuth',
-  //     'AuditPolicy'
-  //   ]
-  // },
-
-  RoleController: [
-    'TokenAuth'
-  ],
-
   TokenController: {
     '*': ['TokenAuth'],
 
@@ -68,14 +57,6 @@ module.exports.policies = {
       'PassportPolicy',
       'SessionAuth'
       // 'UserPolicy'
-    ],
-
-    tokenPermissions: [
-      'TokenAuth'
-    ],
-
-    tokenRoles: [
-      'TokenAuth'
     ]
   }
 }
