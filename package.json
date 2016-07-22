@@ -35,6 +35,7 @@
     "passport-local": "^1.0.0",
     "pluralize": "^3.0.0",
     "require-all": "^2.0.0",
+    "sails": "^0.12.3",
     "url": "^0.11.0",
     "waterline-criteria": "^1.0.1"
   },

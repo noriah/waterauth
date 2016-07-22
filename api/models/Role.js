@@ -43,7 +43,8 @@ module.exports = {
       index: true
     },
     permissions: {
-      collection: 'Permission'
+      collection: 'Permission',
+      via: 'role'
     }
   },
 

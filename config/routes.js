@@ -44,8 +44,9 @@ module.exports.routes = {
   // ///// //
   // ROLES //
   // ///// //
-  'get /role/list': 'RoleController.getAllRoles',
-  'get /role/:rolename': 'RoleController.getRole',
+  'get /role?': 'RoleController.find',
+
+  'get /role/:rolename': 'RoleController.findOne',
   'post /role/:rolename': 'RoleController.createRole',
   'delete /role/:rolename': 'RoleController.destroyRole',
 

@@ -1,21 +1,21 @@
 'use strict'
 
-var R = require('ramda')
+const R = require('ramda')
 // var _ = require('lodash')
 
-var methodMap = {
+const methodMap = {
   POST: 'create',
   GET: 'read',
   PUT: 'update',
   DELETE: 'delete'
 }
 
-var wlFilter = require('waterline-criteria')
+const wlFilter = require('waterline-criteria')
 
-var Controller
-var Permission
-var Role
-var User
+let Controller
+let Permission
+let Role
+let User
 
 sails.after('hook:orm:loaded', () => {
   ({
@@ -28,7 +28,7 @@ sails.after('hook:orm:loaded', () => {
   } = sails)
 })
 
-var PermissionService = {
+let PermissionService = {
 
   /**
    * Given an object, or a list of objects, return true if the list contains
@@ -63,7 +63,7 @@ var PermissionService = {
    */
   findTargetObjects: function findTargetObjects (req) {
     // handle add/remove routes that have :parentid as the primary key field
-    var originalId
+    let originalId
     if (req.params.parentid) {
       originalId = req.params.id
       req.params.id = req.params.parentid
@@ -157,7 +157,7 @@ var PermissionService = {
       objects = [objects]
     }
 
-    var criteria = permissions.reduce((memo, perm) => {
+    let criteria = permissions.reduce((memo, perm) => {
       if (perm) {
         if (!perm.criteria || perm.criteria.length === 0) {
           // If a permission has no criteria then it passes for all cases
@@ -187,10 +187,10 @@ var PermissionService = {
     // every object must have at least one permission that has a passing criteria and a passing attribute check
     return objects.every(obj => {
       return criteria.some(criteria2 => {
-        var match = wlFilter([obj], {
+        let match = wlFilter([obj], {
           where: criteria2.where
         }).results
-        var hasUnpermittedAttributes = PermissionService.hasUnpermittedAttributes(attributes, criteria2.blacklist)
+        let hasUnpermittedAttributes = PermissionService.hasUnpermittedAttributes(attributes, criteria2.blacklist)
         // var hasOwnership = true // edge case for scenario where a user has some permissions that are owner based and some that are role based
         // if (criteria2.owner) {
         //   hasOwnership = !PermissionService.isForeignObject(user)(obj)
@@ -221,7 +221,7 @@ var PermissionService = {
    * Build an error message
    */
   getErrorMessage: function getErrorMessage (options) {
-    var user = options.user.email || options.user.username
+    let user = options.user.email || options.user.username
     return `User ${user} is not permitted to ${options.httpMethod} ${options.controller.name}.${options.ctrlProperty}`
   },
 
@@ -244,8 +244,8 @@ var PermissionService = {
    * @param options.users {array of user names} - optional array of user ids that have this role
    */
   createRole: function createRole (options) {
-    var ok = Promise.resolve()
-    var permissions = options.permissions
+    let ok = Promise.resolve()
+    let permissions = options.permissions
 
     if (!R.is(Array, permissions)) {
       permissions = [permissions]
@@ -297,11 +297,11 @@ var PermissionService = {
     }
 
     // look up the controllers based on name, and replace them with ids
-    var ok = Promise.all(permissions.map(permission => {
-      var findRole = permission.role ? Role.findOne({
-        name: permission.role
+    let ok = Promise.all(permissions.map(permission => {
+      let findRole = permission.role ? Role.findOne({
+        identity: permission.role
       }) : null
-      var findUser = permission.user ? User.findOne({
+      let findUser = permission.user ? User.findOne({
         username: permission.user
       }) : null
       return Promise.all([findRole, findUser, Controller.findOne({
@@ -331,8 +331,8 @@ var PermissionService = {
     let ctrlProperty = options.ctrlProperty
     let controller = options.controller
     let role = options.role
-    var where
-    var blacklist
+    let where
+    let blacklist
     if (typeof options.criteria !== 'undefined' && options.criteria) {
       where = options.critera.where
       blacklist = options.criteria.blacklist
@@ -369,14 +369,14 @@ var PermissionService = {
         if (typeof controller2 === 'undefined' || !controller2 || typeof role2 === 'undefined' || !role2) {
           return Promise.reject(new Error(`Role/Controller missing. Controller: '${controller2}' + Role: '${role2}'`))
         } else {
-          var promise = Permission.findOne({
+          let promise = Permission.findOne({
             httpMethod: httpMethod,
             ctrlProperty: ctrlProperty,
             controller: controller2.id,
             role: role2.id,
             relation: relation})
-          var criteria = {}
-          var hasCriteria = false
+          let criteria = {}
+          let hasCriteria = false
 
           if (typeof blacklist !== 'undefined' && blacklist && blacklist.length > 0) {
             criteria.blacklist = blacklist
@@ -417,7 +417,7 @@ var PermissionService = {
       usernames = [usernames]
     }
 
-    return Role.findOne({ name: rolename })
+    return Role.findOne({ identity: R.toLower(rolename) })
     .populate('users')
     .then(role => {
       return User.find({ username: usernames })
@@ -439,12 +439,14 @@ var PermissionService = {
       return Promise.reject(new Error('One or more usernames must be provided'))
     }
 
+    rolename = R.toLower(rolename)
+
     if (!R.is(Array, usernames)) {
       usernames = [usernames]
     }
 
     return Role.findOne({
-      name: rolename
+      identity: rolename
     })
     .populate('users')
     .then(function (role) {
@@ -472,18 +474,20 @@ var PermissionService = {
    * @param options.relation {string} - the type of the relation (owner or role)
    */
   revoke: function revoke (options) {
-    var findRole = options.role ? Role.findOne({
-      name: options.role
+    let rolename = R.toLower(options.role)
+    let ctrlName = R.toLower(options.controller)
+    let findRole = options.role ? Role.findOne({
+      name: rolename
     }) : null
-    var findUser = options.user ? User.findOne({
+    let findUser = options.user ? User.findOne({
       username: options.user
     }) : null
-    var ok = Promise.all([findRole, findUser, Controller.findOne({
-      name: options.controller
+    let ok = Promise.all([findRole, findUser, Controller.findOne({
+      identity: ctrlName
     })])
 
     ok = ok.then(([ role, user, controller ]) => {
-      var query = {
+      let query = {
         controller: controller.id,
         httpMethod: options.httpMethod,
         ctrlProperty: options.ctrlProperty,
