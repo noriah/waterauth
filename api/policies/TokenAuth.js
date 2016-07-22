@@ -62,7 +62,7 @@ module.exports = function TokenAuthPolicy (req, res, next) {
   })
   .catch(err => {
     if (err instanceof TokenService.TokenError || !R.isNil(err.tokenError)) {
-      return res.json(err.eCode, {error: err.code})
+      return res.json(err.errNum, {error: err.code})
     }
     // } else if (!R.isNil(err)) {
       // res.json(500, {stack: err.stack})
