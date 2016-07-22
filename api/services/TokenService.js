@@ -10,8 +10,8 @@ const moment = require('moment')
 const uuid = require('node-uuid')
 const R = require('ramda')
 
-var Jwt
-var JwtUse
+let Jwt
+let JwtUse
 
 sails.after('hook:orm:loaded', () => {
   ({
@@ -22,7 +22,7 @@ sails.after('hook:orm:loaded', () => {
   } = sails)
 })
 
-var TokenService = {}
+let TokenService = {}
 
 class TokenError extends Error {
   constructor (num, msg, code) {

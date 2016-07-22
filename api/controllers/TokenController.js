@@ -5,9 +5,13 @@ const R = require('ramda')
 var Jwt
 // var Permission
 // var Role
-var User
-var PermissionService
-var TokenService
+
+let {
+  permissionservice: PermissionService,
+  tokenservice: TokenService
+} = sails.services
+
+let User
 
 sails.after('hook:orm:loaded', () => {
   ({
@@ -16,10 +20,6 @@ sails.after('hook:orm:loaded', () => {
       // permission: Permission,
       // role: Role,
       user: User
-    },
-    services: {
-      permissionservice: PermissionService,
-      tokenservice: TokenService
     }
   } = sails)
 })

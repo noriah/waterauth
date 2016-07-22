@@ -37,7 +37,7 @@ module.exports = {
     name: {
       type: 'string',
       index: true,
-      noNull: true
+      notNull: true
     },
 
     httpMethod: {

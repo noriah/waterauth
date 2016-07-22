@@ -88,7 +88,7 @@ module.exports = {
       if (err) {
         return res.negotiate(err)
       }
-      res.json(200, user)
+      res.json(200, {user})
     })
   },
 
@@ -97,11 +97,11 @@ module.exports = {
       if (err) {
         return res.negotiate(err)
       }
-      res.json(200, user)
+      res.json(200, {user})
     })
   },
 
   me: function (req, res) {
-    res.json(200, req.user)
+    res.json(200, {user: req.user})
   }
 }
