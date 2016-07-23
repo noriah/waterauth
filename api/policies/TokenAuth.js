@@ -1,7 +1,6 @@
 'use strict'
 
 const R = require('ramda')
-const ServiceError = require('../../lib/error/ServiceError')
 
 let TokenService = sails.services.tokenservice
 
@@ -58,7 +57,7 @@ module.exports = function TokenAuthPolicy (req, res, next) {
     return next()
   })
   .catch(err => {
-    if (err instanceof ServiceError || !R.isNil(err.serviceError)) {
+    if (err instanceof sails.utils.ServiceError || !R.isNil(err.serviceError)) {
       return res.json(err.errNum, {error: err.code})
     }
     // } else if (!R.isNil(err)) {

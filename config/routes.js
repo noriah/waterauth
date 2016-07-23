@@ -36,8 +36,8 @@ module.exports.routes = {
   'get /user/:username': 'UserController.getUser',
 
   'get /user/:username/roles': 'UserController.getUserRoles',
-  'post /user/:username/roles/:rolename': 'RoleController.addUserToRole',
-  'delete /user/:username/roles/:rolename': 'RoleController.removeUserFromRole',
+  'post /user/:usernames/roles/:rolename': 'RoleController.addUsersToRole',
+  'delete /user/:usernames/roles/:rolename': 'RoleController.removeUsersFromRole',
 
   'get /user/:username/permissions': 'UserController.getUserPermissions',
 
@@ -55,8 +55,8 @@ module.exports.routes = {
   'delete /role/:rolename/users/:usernames': 'RoleController.removeUsersFromRole',
 
   'get /role/:rolename/permissions': 'RoleController.getRolePermissions',
-  'post /role/:rolename/permissions/:permissioname': 'RoleController.addPermissionToRole',
-  'delete /role/:rolename/permission/:permissioname': 'RoleController.removePermissionFromRole',
+  'post /role/:rolename/permissions/:permissioname': 'RoleController.addPermissionsToRole',
+  'delete /role/:rolename/permission/:permissioname': 'RoleController.removePermissionsFromRole',
 
   // /////////// //
   // PERMISSIONS //

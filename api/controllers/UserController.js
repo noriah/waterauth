@@ -15,7 +15,6 @@ let User
 
 sails.after('hook:orm:loaded', () => {
   ({
-    permission: Permission,
     user: User
   } = sails.models)
 })
@@ -35,7 +34,7 @@ module.exports = {
     .catch(next)
   },
 
-  getUserRoles: sails.utils.wrapCtrlRetrun(function getUserRoles (req, res) {
+  getUserRoles: sails.utils.wrapCtrlReturn(function getUserRoles (req, res) {
     let username = req.params('username')
     return UserService.findUserRoles(username)
     .then(roles => {
@@ -46,7 +45,7 @@ module.exports = {
     })
   }),
 
-  getUserPermissions: sails.utils.wrapCtrlRetrun(function getUserPermissions (req, res) {
+  getUserPermissions: sails.utils.wrapCtrlReturn(function getUserPermissions (req, res) {
     let username = req.params('username')
     return UserService.findUserPermissions(username)
     .then(permissions => {
