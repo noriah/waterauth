@@ -63,27 +63,27 @@ module.exports = {
   },
 
   // get /role/:rolename/users
-  getRoleUsers: sails.utils.wrapCtrlRetrun(RoleService.getRoleUsers),
+  getRoleUsers: sails.utils.wrapCtrlReturn(RoleService.getRoleUsers),
 
-  addUsersToRole: sails.utils.wrapCtrlRetrun(function addUsersToRole (req, res) {
+  addUsersToRole: sails.utils.wrapCtrlReturn(function addUsersToRole (req, res) {
     let rolename = req.param('rolename')
     let usernames = req.param('usernames').split(',')
     return PermissionService.addUsersToRole(usernames, rolename)
   }),
 
-  removeUserFromRole: sails.utils.wrapCtrlRetrun(function removeUserFromRole (req, res) {
+  removeUsersFromRole: sails.utils.wrapCtrlReturn(function removeUserFromRole (req, res) {
     let rolename = req.param('rolename')
     let usernames = req.param('usernames').split(',')
     return PermissionService.removeUserFromRole(usernames, rolename)
   }),
 
   // /role/:rolename/permissions
-  getRolePermissions: sails.utils.wrapCtrlRetrun(RoleService.getRolePermissions),
+  getRolePermissions: sails.utils.wrapCtrlReturn(RoleService.getRolePermissions),
 
   // put /role/:rolename/permissions/:permissioname
-  addPermissionToRole: sails.utils.wrapCtrlRetrun(RoleService.addPermissionToRole),
+  addPermissionsToRole: sails.utils.wrapCtrlReturn(RoleService.addPermissionToRole),
 
   // delete /role/:rolename/permissions/:permissioname
-  removePermissionFromRole: sails.utils.wrapCtrlRetrun(RoleService.removePermissionFromRole)
+  removePermissionsFromRole: sails.utils.wrapCtrlReturn(RoleService.removePermissionFromRole)
 
 }
