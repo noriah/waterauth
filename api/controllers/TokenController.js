@@ -15,13 +15,11 @@ let User
 
 sails.after('hook:orm:loaded', () => {
   ({
-    models: {
-      jwt: Jwt,
-      // permission: Permission,
-      // role: Role,
-      user: User
-    }
-  } = sails)
+    jwt: Jwt,
+    // permission: Permission,
+    // role: Role,
+    user: User
+  } = sails.models)
 })
 
 module.exports = {

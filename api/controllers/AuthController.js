@@ -4,17 +4,10 @@
  * Authentication Controller
  */
 
-var AuthService
-var PassportService
-
-sails.after('hook:orm:loaded', () => {
-  ({
-    services: {
-      authservice: AuthService,
-      passportservice: PassportService
-    }
-  } = sails)
-})
+let {
+  authservice: AuthService,
+  passportservice: PassportService
+} = sails.services
 
 module.exports = {
 

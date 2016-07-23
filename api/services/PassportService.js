@@ -9,11 +9,9 @@ var User
 
 sails.after('hook:orm:loaded', () => {
   ({
-    models: {
-      passport: Passport,
-      user: User
-    }
-  } = sails)
+    passport: Passport,
+    user: User
+  } = sails.models)
 })
 
 /**

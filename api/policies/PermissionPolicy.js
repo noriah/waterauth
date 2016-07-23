@@ -1,14 +1,6 @@
 'use strict'
 
-var PermissionService
-
-sails.after('hook:orm:loaded', () => {
-  ({
-    services: {
-      permissionservice: PermissionService
-    }
-  } = sails)
-})
+let PermissionService = sails.services.permissionservice
 
 /**
  * PermissionPolicy

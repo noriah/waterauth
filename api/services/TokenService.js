@@ -9,31 +9,19 @@ const jwt = require('jwt-simple')
 const moment = require('moment')
 const uuid = require('node-uuid')
 const R = require('ramda')
+const ServiceError = require('../../lib/error/ServiceError')
 
 let Jwt
 let JwtUse
 
 sails.after('hook:orm:loaded', () => {
   ({
-    models: {
-      jwt: Jwt,
-      jwtuse: JwtUse
-    }
-  } = sails)
+    jwt: Jwt,
+    jwtuse: JwtUse
+  } = sails.models)
 })
 
 let TokenService = {}
-
-class TokenError extends Error {
-  constructor (num, msg, code) {
-    super(msg)
-    this.tokenError = true
-    this.code = code
-    this.eCode = num || 403
-  }
-}
-
-TokenService.TokenError = TokenError
 
 // https://github.com/waterlock/waterlock/blob/master/lib/utils.js#L97
 /**
@@ -55,14 +43,14 @@ TokenService.getTokenFromRequest = function getTokenFromRequest (req) {
           return resolve(credentials)
         }
       } else {
-        return reject(new TokenError(400, 'Bad authorization header format', 'E_TOKEN_BAD_FORMAT'))
+        return reject(new ServiceError(400, 'Bad authorization header format', 'E_TOKEN_BAD_FORMAT'))
       }
     } else {
       let token = sails.utils.allParams(req).token
       if (!R.isNil(token)) {
         return resolve(token)
       } else {
-        return reject(new TokenError(401, 'No token found', 'E_TOKEN_MISSING'))
+        return reject(new ServiceError(401, 'No token found', 'E_TOKEN_MISSING'))
         // return reject(null)
       }
     }
@@ -201,21 +189,21 @@ TokenService.validateToken = function validateToken (token) {
     if (_token.exp <= _reqTime) {
       // sails.log.debug('access token rejected, reason: EXPIRED')
       // return reject(new Error())
-      return reject(new TokenError(401, 'Your token is expired.', 'E_TOKEN_EXPIRED'))
+      return reject(new ServiceError(401, 'Your token is expired.', 'E_TOKEN_EXPIRED'))
     }
 
     // If token is early
     if ((_reqTime + clockTolerance) <= _token.nbf) {
       // sails.log.debug('access token rejected, reason: TOKEN EARLY')
       // return reject(new Error('This token is early.'))
-      return reject(new TokenError(401, 'This token is early.', 'E_TOKEN_EARLY'))
+      return reject(new ServiceError(401, 'This token is early.', 'E_TOKEN_EARLY'))
     }
 
     // If audience doesn't match
     if (sails.config.jwt.audience !== _token.aud) {
       // sails.log.debug('access token rejected, reason: AUDIENCE')
       // return reject(new Error('This token cannot be accepted for this domain.'))
-      return reject(new TokenError(401, 'This token cannot be accepted for this domain.', 'E_TOKEN_DOMAIN'))
+      return reject(new ServiceError(401, 'This token cannot be accepted for this domain.', 'E_TOKEN_DOMAIN'))
     }
 
     let _iss = _token.iss.split('|')
@@ -231,12 +219,12 @@ TokenService.validateToken = function validateToken (token) {
       if (R.isNil(jwtObj)) {
         // res.json(401, {error: 'E_TOKEN_NOT_FOUND'})
         // return Promise.reject(new Error('Token not found'))
-        return Promise.reject(new TokenError(401, 'Token not found', 'E_TOKEN_INVALID'))
+        return Promise.reject(new ServiceError(401, 'Token not found', 'E_TOKEN_INVALID'))
       }
 
       if (jwtObj.revoked) {
         // res.json(401, {error: 'E_TOKEN_REVOKED'})
-        return Promise.reject(new TokenError(401, 'Token as been revoked', 'E_TOKEN_REVOKED'))
+        return Promise.reject(new ServiceError(401, 'Token as been revoked', 'E_TOKEN_REVOKED'))
       }
 
       return jwtObj

@@ -7,11 +7,13 @@
  */
 
 const R = require('ramda')
+const ServiceError = require('../../lib/error/ServiceError')
+
+let RoleService = sails.services.roleservice
 
 let Permission
 let Role
 let User
-let RoleService = sails.services.roleservice
 
 sails.after('hook:orm:loaded', () => {
   ({
@@ -30,7 +32,7 @@ function _wrap (func) {
       return res.json(200, result)
     })
     .catch(err => {
-      if (err instanceof RoleService.RoleError || !R.isNil(err.roleError)) {
+      if (err instanceof ServiceError || !R.isNil(err.serviceError)) {
         return res.json(err.errNum, {error: err.code})
       }
 
@@ -40,33 +42,33 @@ function _wrap (func) {
 }
 
 module.exports = {
-  _config: { actions: false, shortcuts: false, rest: false },
+  _config: { actions: true, shortcuts: false, rest: false },
 
-  find: function getAllRoles (req, res, next) {
-    Role.find({active: true})
-    .then(roles => {
-      if (sails.config.environment === 'production') {
-        return res.json(200, {roles: R.pluck('name', roles)})
-      }
-      return res.json(200, {roles})
-    })
-    .catch(next)
-  },
+  // find: function getAllRoles (req, res, next) {
+  //   Role.find({active: true})
+  //   .then(roles => {
+  //     if (sails.config.environment === 'production') {
+  //       return res.json(200, {roles: R.pluck('name', roles)})
+  //     }
+  //     return res.json(200, {roles})
+  //   })
+  //   .catch(next)
+  // },
 
-  findOne: function getRole (req, res, next) {
-    let roleName = req.param('rolename')
-    if (R.isNil(roleName) || R.isEmpty(roleName)) {
-      return res.json(404, {error: 'E_ROLE_NOT_FOUND'})
-    }
-    return findActiveRole(roleName)
-    .then(role => {
-      if (R.isNil(role)) {
-        return res.json(404, {error: 'E_ROLE_NOT_FOUND'})
-      }
-      return res.json(200, {role})
-    })
-    .catch(next)
-  },
+  // findOne: function getRole (req, res, next) {
+  //   let roleName = req.param('rolename')
+  //   if (R.isNil(roleName) || R.isEmpty(roleName)) {
+  //     return res.json(404, {error: 'E_ROLE_NOT_FOUND'})
+  //   }
+  //   return findActiveRole(roleName)
+  //   .then(role => {
+  //     if (R.isNil(role)) {
+  //       return res.json(404, {error: 'E_ROLE_NOT_FOUND'})
+  //     }
+  //     return res.json(200, {role})
+  //   })
+  //   .catch(next)
+  // },
 
   createRole: function createRole (req, res, next) {
     next()
@@ -76,22 +78,20 @@ module.exports = {
     next()
   },
 
-  addUserToRole: _wrap(RoleService.addUserToRole),
-
-  removeUserFromRole: _wrap(RoleService.removeUserFromRole),
   // get /role/:rolename/users
   getRoleUsers: _wrap(RoleService.getRoleUsers),
 
-  // put /role/:rolename/permissions/:permissioname
-  addPermissionToRole: function addPermissionToRole (req, res, next) {
-    next()
-  },
+  addUserToRole: _wrap(RoleService.addUserToRole),
 
-  // delete /role/:rolename/permissions/:permissioname
-  removePermissionFromRole: function removePermissionFromRole (req, res, next) {
-    next()
-  },
+  removeUserFromRole: _wrap(RoleService.removeUserFromRole),
 
   // /role/:rolename/permissions
-  getRolePermissions: _wrap(RoleService.getRolePermissions)
+  getRolePermissions: _wrap(RoleService.getRolePermissions),
+
+  // put /role/:rolename/permissions/:permissioname
+  addPermissionToRole: _wrap(RoleService.addPermissionToRole),
+
+  // delete /role/:rolename/permissions/:permissioname
+  removePermissionFromRole: _wrap(RoleService.removePermissionFromRole)
+
 }

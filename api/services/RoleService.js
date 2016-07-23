@@ -2,6 +2,7 @@
 
 const Promise = require('bluebird')
 const R = require('ramda')
+const ServiceError = require('../../lib/error/ServiceError')
 
 let Permission
 let Role
@@ -9,39 +10,31 @@ let User
 
 sails.after('hook:orm:loaded', () => {
   ({
-    models: {
-      permission: Permission,
-      role: Role,
-      user: User
-    }
-  } = sails)
+    permission: Permission,
+    role: Role,
+    user: User
+  } = sails.models)
 })
 
 let RoleService = {}
 
-class RoleError extends Error {
-  constructor (num, msg, code) {
-    super(msg)
-    this.roleError = true
-    this.code = code
-    this.errNum = num || 404
-  }
-}
-
 function getRoleName (req) {
   let roleName = req.param('rolename')
   if (R.isNil(roleName) || R.isEmpty(roleName)) {
-    return Promise.reject(new RoleError(404, 'roleName is empty', 'E_ROLE_NOT_FOUND'))
+    return Promise.reject(new ServiceError(404, 'roleName is empty', 'E_ROLE_NOT_FOUND'))
   }
   return Promise.resolve(roleName)
 }
 
-function validateRoleValue (role) {
-  if (R.isNil(role)) {
-    return Promise.reject(new RoleError(404, 'role not found in db', 'E_ROLE_NOT_FOUND'))
+function validateValue (errNum, eMsg, eCode, value) {
+  if (R.isNil(value)) {
+    return Promise.reject(new ServiceError(errNum, eMsg, eCode))
   }
-  return Promise.resolve(role)
+  return Promise.resolve(value)
 }
+
+let validateRoleValue = R.curry(validateValue)(404, 'role not found in db', 'E_ROLE_NOT_FOUND')
+let validateUserValue = R.curry(validateValue)(404, 'user not found in db', 'E_USER_NOT_FOUND')
 
 function getRole (roleName, isActive = true) {
   return Role.findOne({
@@ -62,16 +55,9 @@ function getPopulatedRole (req, populateName) {
 function getUsername (req) {
   let username = req.param('username')
   if (R.isNil(username) || R.isEmpty(username)) {
-    return Promise.reject(new RoleError(404, 'username is empty', 'E_USER_NOT_FOUND'))
+    return Promise.reject(new ServiceError(404, 'username is empty', 'E_USER_NOT_FOUND'))
   }
   return Promise.resolve(username)
-}
-
-function validateUserValue (user) {
-  if (R.isNil(user)) {
-    return Promise.reject(new RoleError(404, 'user not found in db', 'E_USER_NOT_FOUND'))
-  }
-  return Promise.resolve(user)
 }
 
 function getUser (username) {
@@ -82,8 +68,6 @@ function getUser (username) {
     ]
   })
 }
-
-RoleService.RoleError = RoleError
 
 RoleService.addUserToRole = function addUserToRole (req) {
   return Promise.all([
@@ -143,6 +127,14 @@ RoleService.getRolePermissions = function getRolePermissions (req) {
 
     return {permissions: role.permissions}
   })
+}
+
+RoleService.addPermissionToRole = function addPermissionToRole (req) {
+
+}
+
+RoleService.removePermissionFromRole = function removePermissionFromRole (req) {
+
 }
 
 module.exports = RoleService
