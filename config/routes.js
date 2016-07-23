@@ -51,8 +51,8 @@ module.exports.routes = {
   'delete /role/:rolename': 'RoleController.destroyRole',
 
   'get /role/:rolename/users': 'RoleController.getRoleUsers',
-  'post /role/:rolename/users/:username': 'RoleController.addUserToRole',
-  'delete /role/:rolename/users/:username': 'RoleController.removeUserFromRole',
+  'post /role/:rolename/users/:usernames': 'RoleController.addUsersToRole',
+  'delete /role/:rolename/users/:usernames': 'RoleController.removeUsersFromRole',
 
   'get /role/:rolename/permissions': 'RoleController.getRolePermissions',
   'post /role/:rolename/permissions/:permissioname': 'RoleController.addPermissionToRole',

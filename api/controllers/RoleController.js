@@ -10,6 +10,7 @@ const R = require('ramda')
 const ServiceError = require('../../lib/error/ServiceError')
 
 let RoleService = sails.services.roleservice
+let PermissionService = sails.services.permissionservice
 
 let Permission
 let Role
@@ -81,9 +82,17 @@ module.exports = {
   // get /role/:rolename/users
   getRoleUsers: _wrap(RoleService.getRoleUsers),
 
-  addUserToRole: _wrap(RoleService.addUserToRole),
+  addUsersToRole: _wrap(function addUsersToRole (req, res, next) {
+    let rolename = req.param('rolename')
+    let usernames = req.param('usernames').split(',')
+    return PermissionService.addUsersToRole(usernames, rolename)
+  }),
 
-  removeUserFromRole: _wrap(RoleService.removeUserFromRole),
+  removeUserFromRole: _wrap(function removeUserFromRole (req, res, next) {
+    let rolename = req.param('rolename')
+    let usernames = req.param('usernames').split(',')
+    return PermissionService.removeUserFromRole(usernames, rolename)
+  }),
 
   // /role/:rolename/permissions
   getRolePermissions: _wrap(RoleService.getRolePermissions),

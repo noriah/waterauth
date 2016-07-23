@@ -67,7 +67,7 @@ module.exports = {
         ]
       })
       .then(permissions => {
-        if (sails.config.environment === 'production') {
+        if (sails.utils.isProduction()) {
           return res.json(200, {permissions: R.pluck('name', permissions)})
         }
         return res.json(200, {permissions})
