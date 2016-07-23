@@ -6,11 +6,10 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
-const R = require('ramda')
-const ServiceError = require('../../lib/error/ServiceError')
+// const R = require('ramda')
 
-let RoleService = sails.services.roleservice
 let PermissionService = sails.services.permissionservice
+let RoleService = sails.services.roleservice
 
 let Permission
 let Role
@@ -25,22 +24,6 @@ sails.after('hook:orm:loaded', () => {
     }
   } = sails)
 })
-
-function _wrap (func) {
-  return function _wrappedFunction (req, res, next) {
-    func(req, res, next)
-    .then(result => {
-      return res.json(200, result)
-    })
-    .catch(err => {
-      if (err instanceof ServiceError || !R.isNil(err.serviceError)) {
-        return res.json(err.errNum, {error: err.code})
-      }
-
-      return next(err)
-    })
-  }
-}
 
 module.exports = {
   _config: { actions: true, shortcuts: false, rest: false },
@@ -80,27 +63,27 @@ module.exports = {
   },
 
   // get /role/:rolename/users
-  getRoleUsers: _wrap(RoleService.getRoleUsers),
+  getRoleUsers: sails.utils.wrapCtrlRetrun(RoleService.getRoleUsers),
 
-  addUsersToRole: _wrap(function addUsersToRole (req, res, next) {
+  addUsersToRole: sails.utils.wrapCtrlRetrun(function addUsersToRole (req, res) {
     let rolename = req.param('rolename')
     let usernames = req.param('usernames').split(',')
     return PermissionService.addUsersToRole(usernames, rolename)
   }),
 
-  removeUserFromRole: _wrap(function removeUserFromRole (req, res, next) {
+  removeUserFromRole: sails.utils.wrapCtrlRetrun(function removeUserFromRole (req, res) {
     let rolename = req.param('rolename')
     let usernames = req.param('usernames').split(',')
     return PermissionService.removeUserFromRole(usernames, rolename)
   }),
 
   // /role/:rolename/permissions
-  getRolePermissions: _wrap(RoleService.getRolePermissions),
+  getRolePermissions: sails.utils.wrapCtrlRetrun(RoleService.getRolePermissions),
 
   // put /role/:rolename/permissions/:permissioname
-  addPermissionToRole: _wrap(RoleService.addPermissionToRole),
+  addPermissionToRole: sails.utils.wrapCtrlRetrun(RoleService.addPermissionToRole),
 
   // delete /role/:rolename/permissions/:permissioname
-  removePermissionFromRole: _wrap(RoleService.removePermissionFromRole)
+  removePermissionFromRole: sails.utils.wrapCtrlRetrun(RoleService.removePermissionFromRole)
 
 }

@@ -9,8 +9,8 @@
 const R = require('ramda')
 
 let PassportService = sails.services.passportservice
+let UserService = sails.services.userservice
 
-let Permission
 let User
 
 sails.after('hook:orm:loaded', () => {
@@ -35,46 +35,27 @@ module.exports = {
     .catch(next)
   },
 
-  getUserRoles: function getUserRoles (req, res, next) {
+  getUserRoles: sails.utils.wrapCtrlRetrun(function getUserRoles (req, res) {
     let username = req.params('username')
-    return User.findOne({username})
-    .populate('roles', {active: true})
-    .then(user => {
-      if (R.isNil(user)) {
-        return res.json(404, {error: 'E_USER_NOT_FOUND'})
+    return UserService.findUserRoles(username)
+    .then(roles => {
+      if (sails.utils.isProduction()) {
+        return {roles: R.pluck('name', roles)}
       }
-      if (sails.config.environment === 'production') {
-        return res.json(200, {roles: R.pluck('name', user.roles)})
-      }
-      return res.json(200, {roles: user.roles})
+      return {roles}
     })
-    .catch(next)
-  },
+  }),
 
-  getUserPermissions: function getUserPermissions (req, res, next) {
+  getUserPermissions: sails.utils.wrapCtrlRetrun(function getUserPermissions (req, res) {
     let username = req.params('username')
-    return User.findOne({username})
-    .populate('roles', {active: true})
-    .then(user => {
-      if (R.isNil(user)) {
-        return res.json(404, {error: 'E_USER_NOT_FOUND'})
+    return UserService.findUserPermissions(username)
+    .then(permissions => {
+      if (sails.utils.isProduction()) {
+        return {permissions: R.pluck('name', permissions)}
       }
-
-      return Permission.find({
-        or: [
-          { role: R.pluck('id', user.roles) },
-          { user: user.id }
-        ]
-      })
-      .then(permissions => {
-        if (sails.utils.isProduction()) {
-          return res.json(200, {permissions: R.pluck('name', permissions)})
-        }
-        return res.json(200, {permissions})
-      })
+      return {permissions}
     })
-    .catch(next)
-  },
+  }),
 
   /**
    * @override
