@@ -43,9 +43,9 @@ module.exports = {
         return User.findOne(req.user.id)
         .populate('roles', {active: true})
         .then(user => {
-          tokenData.roles = R.pluck('name', user.roles)
+          tokenData.roles = user.roles
 
-          if (sails.config.environment === 'production') {
+          if (sails.utils.isProduction()) {
             tokenData.roles = R.pluck('name', tokenData.roles)
           }
 
@@ -59,9 +59,9 @@ module.exports = {
       if (sails.config.jwt.includePermissions) {
         return PermissionService.findUserPermissions(req.user.id)
         .then(permissions => {
-          tokenData.permissions = R.pluck('name', permissions)
+          tokenData.permissions = permissions
 
-          if (sails.config.environment === 'production') {
+          if (sails.utils.isProduction()) {
             tokenData.permissions = R.pluck('name', tokenData.permissions)
           }
 
@@ -84,7 +84,7 @@ module.exports = {
     .populate('roles', {active: true})
     .then(user => {
       let roles = user.roles
-      if (sails.config.environment === 'production') {
+      if (sails.utils.isProduction()) {
         roles = R.pluck('name', roles)
       }
       return res.json(200, roles)
@@ -96,7 +96,7 @@ module.exports = {
     return PermissionService.findUserPermissions(req.user.id)
     .then(permissions => {
       let result = permissions
-      if (sails.config.environment === 'production') {
+      if (sails.utils.isProduction()) {
         result = R.pluck('name', permissions)
       }
       return res.json(200, result)
