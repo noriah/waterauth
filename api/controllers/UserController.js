@@ -8,20 +8,16 @@
 
 const R = require('ramda')
 
-var Permission
-var User
-var PassportService
+let PassportService = sails.services.passportservice
+
+let Permission
+let User
 
 sails.after('hook:orm:loaded', () => {
   ({
-    models: {
-      permission: Permission,
-      user: User
-    },
-    services: {
-      passportservice: PassportService
-    }
-  } = sails)
+    permission: Permission,
+    user: User
+  } = sails.models)
 })
 
 module.exports = {

@@ -19,13 +19,11 @@ let User
 
 sails.after('hook:orm:loaded', () => {
   ({
-    models: {
-      controller: Controller,
-      permission: Permission,
-      role: Role,
-      user: User
-    }
-  } = sails)
+    controller: Controller,
+    permission: Permission,
+    role: Role,
+    user: User
+  } = sails.models)
 })
 
 let PermissionService = {

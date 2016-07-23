@@ -2,17 +2,8 @@
 
 const R = require('ramda')
 
-var ControllerService
-var PermissionService
-
-sails.after('hook:orm:loaded', () => {
-  ({
-    services: {
-      modelservice: ControllerService,
-      permissionservice: PermissionService
-    }
-  } = sails)
-})
+let ControllerService = sails.services.controllerservice
+let PermissionService = sails.services.permissionservice
 
 /**
  * RolePolicy

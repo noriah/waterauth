@@ -9,15 +9,7 @@ const wlFilter = require('waterline-criteria')
 const _ = require('lodash')
 const R = require('ramda')
 
-var PermissionService
-
-sails.after('hook:orm:loaded', () => {
-  ({
-    services: {
-      permissionservice: PermissionService
-    }
-  } = sails)
-})
+let PermissionService = sails.services.permissionservice
 
 module.exports = function CriteriaPolicy (req, res, next) {
   let permissions = req.permissions

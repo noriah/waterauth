@@ -13,15 +13,7 @@
  * @param {Function} next
  */
 
-var PassportService
-
-sails.after('hook:orm:loaded', () => {
-  ({
-    services: {
-      passportservice: PassportService
-    }
-  } = sails)
-})
+let PassportService = sails.services.passportservice
 
 module.exports = function BearerAuthPolicy (req, res, next) {
   return PassportService.authenticate('bearer', { session: false })(req, res, next)
