@@ -18,13 +18,13 @@ sails.after('hook:orm:loaded', () => {
 
 let RoleService = {}
 
-function getRoleName (req) {
-  let roleName = req.param('rolename')
-  if (R.isNil(roleName) || R.isEmpty(roleName)) {
-    return Promise.reject(new ServiceError(404, 'roleName is empty', 'E_ROLE_NOT_FOUND'))
-  }
+function getValue (name, req) {
+  let roleName = req.param(name)
   return Promise.resolve(roleName)
 }
+
+let getRoleName = R.curry(getValue)('rolename')
+let getUsername = R.curry(getValue)('username')
 
 function validateValue (errNum, eMsg, eCode, value) {
   if (R.isNil(value)) {
@@ -50,14 +50,6 @@ function getPopulatedRole (req, populateName) {
   return getRoleName(req)
   .then(roleName => getRole(roleName).populate(populateName))
   .then(validateRoleValue)
-}
-
-function getUsername (req) {
-  let username = req.param('username')
-  if (R.isNil(username) || R.isEmpty(username)) {
-    return Promise.reject(new ServiceError(404, 'username is empty', 'E_USER_NOT_FOUND'))
-  }
-  return Promise.resolve(username)
 }
 
 function getUser (username) {
