@@ -16,8 +16,6 @@ sails.after('hook:orm:loaded', () => {
   } = sails.models)
 })
 
-let RoleService = {}
-
 function getValue (name, req) {
   let roleName = req.param(name)
   return Promise.resolve(roleName)
@@ -61,72 +59,43 @@ function getUser (username) {
   })
 }
 
-RoleService.addUserToRole = function addUserToRole (req) {
-  return Promise.all([
-    getRoleName(req)
-    .then(getRole)
-    .then(validateRoleValue),
-    getUsername(req)
-    .then(username => getUser(username).populate('roles'))
-    .then(validateUserValue)
-  ])
-  .then(([role, user]) => {
-    user.roles.add(role.id)
-    return user.save()
-    .then(user => {
-      return {user}
+let RoleService = {
+
+  findUserRoles: function findUserRoles (userid) {
+
+  }
+
+  getRoleUsers: function getRoleUsers (req) {
+    return getRoleName(req)
+    .then(roleName => getRole(roleName).populate('users'))
+    .then(validateRoleValue)
+    .then(role => {
+      if (sails.utils.isProduction()) {
+        return {users: R.pluck('name', role.users)}
+      }
+
+      return {users: role.users}
     })
-  })
-}
+  },
 
-RoleService.removeUserFromRole = function removeUserFromRole (req) {
-  return Promise.all([
-    getRoleName(req)
-    .then(getRole)
-    .then(validateRoleValue),
-    getUsername(req)
-    .then(username => getUser(username).populate('roles'))
-    .then(validateUserValue)
-  ])
-  .then(([role, user]) => {
-    user.roles.remove(role.id)
-    return user.save()
-    .then(user => {
-      return {user}
+  getRolePermissions: function getRolePermissions (req) {
+    return getPopulatedRole(req, 'permissions')
+    .then(role => {
+      if (sails.utils.isProduction()) {
+        return {permissions: R.pluck('name', role.permissions)}
+      }
+
+      return {permissions: role.permissions}
     })
-  })
-}
+  },
 
-RoleService.getRoleUsers = function getRoleUsers (req) {
-  return getRoleName(req)
-  .then(roleName => getRole(roleName).populate('users'))
-  .then(validateRoleValue)
-  .then(role => {
-    if (sails.utils.isProduction()) {
-      return {users: R.pluck('name', role.users)}
-    }
+  addPermissionToRole: function addPermissionToRole (req) {
 
-    return {users: role.users}
-  })
-}
+  },
 
-RoleService.getRolePermissions = function getRolePermissions (req) {
-  return getPopulatedRole(req, 'permissions')
-  .then(role => {
-    if (sails.utils.isProduction()) {
-      return {permissions: R.pluck('name', role.permissions)}
-    }
+  removePermissionFromRole: function removePermissionFromRole (req) {
 
-    return {permissions: role.permissions}
-  })
-}
-
-RoleService.addPermissionToRole = function addPermissionToRole (req) {
-
-}
-
-RoleService.removePermissionFromRole = function removePermissionFromRole (req) {
-
+  }
 }
 
 module.exports = RoleService

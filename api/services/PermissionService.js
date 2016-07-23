@@ -57,7 +57,6 @@ let PermissionService = {
    * @param options.controller
    * @param options.query
    *
-   * TODO this will be less expensive when waterline supports a caching layer
    */
   findTargetObjects: function findTargetObjects (req) {
     // handle add/remove routes that have :parentid as the primary key field
@@ -402,7 +401,6 @@ let PermissionService = {
 
   /**
    * add one or more users to a particular role
-   * TODO should this work with multiple roles?
    * @param usernames {string or string array} - list of names of users
    * @param rolename {string} - the name of the role that the users should be added to
    */
@@ -428,7 +426,6 @@ let PermissionService = {
 
   /**
    * remove one or more users from a particular role
-   * TODO should this work with multiple roles
    * @params usernames {string or string array} - name or list of names of users
    * @params rolename {string} - the name of the role that the users should be removed from
    */
@@ -443,17 +440,12 @@ let PermissionService = {
       usernames = [usernames]
     }
 
-    return Role.findOne({
-      identity: rolename
-    })
+    return Role.findOne({identity: rolename})
     .populate('users')
-    .then(function (role) {
-      return User.find({
-        username: usernames
-      }, {
-        select: ['id']
-      }).then(function (users) {
-        users.map(function (user) {
+    .then(role => {
+      return User.find({username: usernames}, {select: ['id']})
+      .then(users => {
+        users.map(user => {
           role.users.remove(user.id)
         })
         return role.save()
