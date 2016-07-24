@@ -23,10 +23,6 @@ function validateValue (value) {
 function getUser (username) {
   return User.findOne({
     username: R.toLower(username)
-    // or: [
-      // {id: username},
-      // {identity: R.toLower(username)}
-    // ]
   })
 }
 
