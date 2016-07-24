@@ -20,22 +20,15 @@ sails.after('hook:orm:loaded', () => {
 })
 
 module.exports = {
-  _config: { actions: false, shortcuts: false, rest: false },
+  _config: { actions: true, shortcuts: false, rest: false },
 
-  getUser: function getUser (req, res, next) {
-    let username = req.params('username')
-    return User.findOne({username})
-    .then(user => {
-      if (R.isNil(user)) {
-        return res.json(404, {error: 'E_USER_NOT_FOUND'})
-      }
-      return res.json(200, {user})
-    })
-    .catch(next)
-  },
+  findOne: sails.utils.wrapCtrlReturn(function getUser (req, res) {
+    let username = req.param('username')
+    return UserService.findUser(username)
+  }),
 
   getUserRoles: sails.utils.wrapCtrlReturn(function getUserRoles (req, res) {
-    let username = req.params('username')
+    let username = req.param('username')
     return UserService.findUserRoles(username)
     .then(roles => {
       if (sails.utils.isProduction()) {
@@ -46,7 +39,7 @@ module.exports = {
   }),
 
   getUserPermissions: sails.utils.wrapCtrlReturn(function getUserPermissions (req, res) {
-    let username = req.params('username')
+    let username = req.param('username')
     return UserService.findUserPermissions(username)
     .then(permissions => {
       if (sails.utils.isProduction()) {
