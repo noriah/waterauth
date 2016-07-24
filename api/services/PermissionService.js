@@ -207,6 +207,65 @@ let PermissionService = {
   },
 
   /**
+   * This method is SUPER expensive. Dont use it often. Cache it if you use it
+   */
+  findUsersWithPermission: function findUsersWithPermission (permissionName) {
+    let parts = R.toLower(permissionName).split('.')
+    return Controller.findOne({identity: parts[0]})
+    .then(controller => {
+      let permissionCriteria = {
+        controller: controller.id,
+        ctrlProperty: parts[1],
+        httpMethod: parts[2]
+      }
+      let perms
+      return Permission.find(permissionCriteria)
+      .populate('user')
+      .populate('role')
+      .then(permissions => {
+        perms = R.groupBy(R.prop('relation'), permissions)
+
+        if (!R.isNil(perms.user)) {
+          perms.user = R.pluck('user', perms.user)
+        } else {
+          perms.user = []
+        }
+
+        if (!R.isNil(perms.role)) {
+          perms.role = R.map(permission2 => permission2.role.id, perms.role)
+
+          return Role.find(perms.role)
+          .populate('users')
+          .then(roles => R.unnest(R.pluck('users', roles)))
+        }
+
+        return []
+      })
+      .then(users => {
+        console.log(users)
+        users = R.concat(users, perms.user)
+        users = R.uniqBy(R.prop('username'), users)
+        return users
+      })
+    })
+  },
+
+  findRolesWithPermission: function findRolesWithPermission (permissionName) {
+    let parts = R.toLower(permissionName).split('.')
+    return Controller.findOne({identity: parts[0]})
+    .then(controller => {
+      let permissionCriteria = {
+        controller: controller.id,
+        ctrlProperty: parts[1],
+        httpMethod: parts[2]
+      }
+      return Permission.find(permissionCriteria)
+      .populate('role')
+      .then(R.pluck('role'))
+    })
+  },
+
+  /**
    * Return true if the specified controller supports the ownership policy false
    * otherwise.
    */

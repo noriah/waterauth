@@ -64,7 +64,6 @@ module.exports.routes = {
   // /////////// //
   // PERMISSIONS //
   // /////////// //
-  'get /permission/all/:permissionname': 'PermissionController.getObjectsWithPermission',
-  'get /permission/users/:permissionname': 'PermissionController.getUsersWithPermission',
-  'get /permission/roles/:permissionname': 'PermissionController.getRolesWithPermission'
+  'get /permission/:permissionname/users': 'PermissionController.getUsersWithPermission',
+  'get /permission/:permissionname/roles': 'PermissionController.getRolesWithPermission'
 }

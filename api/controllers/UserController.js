@@ -11,13 +11,13 @@ const R = require('ramda')
 let PassportService = sails.services.passportservice
 let UserService = sails.services.userservice
 
-let User
+// let User
 
-sails.after('hook:orm:loaded', () => {
-  ({
-    user: User
-  } = sails.models)
-})
+// sails.after('hook:orm:loaded', () => {
+//   ({
+//     user: User
+//   } = sails.models)
+// })
 
 module.exports = {
   _config: { actions: true, shortcuts: false, rest: false },

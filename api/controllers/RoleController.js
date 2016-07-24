@@ -17,12 +17,10 @@ let User
 
 sails.after('hook:orm:loaded', () => {
   ({
-    models: {
-      permission: Permission,
-      role: Role,
-      user: User
-    }
-  } = sails)
+    permission: Permission,
+    role: Role,
+    user: User
+  } = sails.models)
 })
 
 module.exports = {
@@ -74,7 +72,7 @@ module.exports = {
   removeUsersFromRole: sails.utils.wrapCtrlReturn(function removeUserFromRole (req, res) {
     let rolename = req.param('rolename')
     let usernames = req.param('usernames').split(',')
-    return PermissionService.removeUserFromRole(usernames, rolename)
+    return PermissionService.removeUsersFromRole(usernames, rolename)
   }),
 
   // /role/:rolename/permissions
