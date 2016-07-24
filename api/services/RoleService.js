@@ -30,38 +30,29 @@ function getRole (rolename, isActive = true) {
 }
 
 let RoleService = {
-  getRoleUsers: function getRoleUsers (rolename) {
+  findRole: function findRole (rolename) {
+    return getRole(rolename)
+    .then(validateValue)
+  },
+
+  findRoleUsers: function findRoleUsers (rolename) {
     return getRole(rolename)
     .populate('users')
     .then(validateValue)
-    .then(role => {
-      let users = role.users
-      if (sails.utils.isProduction()) {
-        return {users: R.pluck('name', users)}
-      }
-      return {users}
-    })
   },
 
-  getRolePermissions: function getRolePermissions (rolename) {
+  findRolePermissions: function findRolePermissions (rolename) {
     return getRole(rolename)
     .populate('permissions')
     .then(validateValue)
-    .then(role => {
-      let permissions = role.permissions
-      if (sails.utils.isProduction()) {
-        return {permissions: R.pluck('name', permissions)}
-      }
-      return {permissions}
-    })
   },
 
   addPermissionsToRole: function addPermissionsToRole (permissions, rolename) {
-
+    return Promise.resolve({'msg': 'Not yet implementd'})
   },
 
   removePermissionsFromRole: function removePermissionsFromRole (permissions, rolename) {
-
+    return Promise.resolve({'msg': 'Not yet implementd'})
   }
 }
 

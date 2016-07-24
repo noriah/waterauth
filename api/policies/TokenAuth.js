@@ -51,8 +51,13 @@ module.exports = function TokenAuthPolicy (req, res, next) {
 
     sails.log.info('Token Validated for', req.user.username)
 
-    req.query && delete req.query.token
-    req.body && delete req.body.token
+    if (req.query) {
+      delete req.query.token
+    }
+
+    if (req.body) {
+      delete req.body.token
+    }
 
     return next()
   })

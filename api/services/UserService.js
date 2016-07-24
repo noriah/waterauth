@@ -22,7 +22,7 @@ function validateValue (value) {
 
 function getUser (username) {
   return User.findOne({
-    identity: R.toLower(username)
+    username: R.toLower(username)
     // or: [
       // {id: username},
       // {identity: R.toLower(username)}
@@ -31,9 +31,10 @@ function getUser (username) {
 }
 
 let UserService = {
-  // findUser: function findUser (username) {
-  //   return
-  // },
+  findUser: function findUser (username) {
+    return getUser(username)
+    .then(validateValue)
+  },
 
   findUserRoles: function findUserRoles (username) {
     return getUser(username)

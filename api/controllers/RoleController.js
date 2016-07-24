@@ -6,7 +6,7 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
-// const R = require('ramda')
+const R = require('ramda')
 
 let PermissionService = sails.services.permissionservice
 let RoleService = sails.services.roleservice
@@ -39,21 +39,6 @@ module.exports = {
   //   .catch(next)
   // },
 
-  // findOne: function getRole (req, res, next) {
-  //   let roleName = req.param('rolename')
-  //   if (R.isNil(roleName) || R.isEmpty(roleName)) {
-  //     return res.json(404, {error: 'E_ROLE_NOT_FOUND'})
-  //   }
-  //   return findActiveRole(roleName)
-  //   .then(role => {
-  //     if (R.isNil(role)) {
-  //       return res.json(404, {error: 'E_ROLE_NOT_FOUND'})
-  //     }
-  //     return res.json(200, {role})
-  //   })
-  //   .catch(next)
-  // },
-
   createRole: function createRole (req, res, next) {
     next()
   },
@@ -62,8 +47,23 @@ module.exports = {
     next()
   },
 
+  findOne: sails.utils.wrapCtrlReturn(function getRole (req, res) {
+    let rolename = req.param('rolename')
+    return RoleService.findRole(rolename)
+  }),
+
   // get /role/:rolename/users
-  getRoleUsers: sails.utils.wrapCtrlReturn(RoleService.getRoleUsers),
+  getRoleUsers: sails.utils.wrapCtrlReturn(function getRoleUsers (req, res) {
+    let rolename = req.param('rolename')
+    return RoleService.findRoleUsers(rolename)
+    .then(role => {
+      let users = role.users
+      if (sails.utils.isProduction()) {
+        return {users: R.pluck('name', users)}
+      }
+      return {users}
+    })
+  }),
 
   addUsersToRole: sails.utils.wrapCtrlReturn(function addUsersToRole (req, res) {
     let rolename = req.param('rolename')
@@ -78,12 +78,29 @@ module.exports = {
   }),
 
   // /role/:rolename/permissions
-  getRolePermissions: sails.utils.wrapCtrlReturn(RoleService.getRolePermissions),
+  getRolePermissions: sails.utils.wrapCtrlReturn(function getRolePermissions (req, res) {
+    let rolename = req.param('rolename')
+    return RoleService.findRolePermissions(rolename)
+    .then(role => {
+      let permissions = role.permissions
+      if (sails.utils.isProduction()) {
+        return {permissions: R.pluck('name', permissions)}
+      }
+      return {permissions}
+    })
+  }),
 
   // put /role/:rolename/permissions/:permissioname
-  addPermissionsToRole: sails.utils.wrapCtrlReturn(RoleService.addPermissionToRole),
+  addPermissionsToRole: sails.utils.wrapCtrlReturn(function addPermissionsToRole (req, res) {
+    let rolename = req.param('rolename')
+    let permissionNames = req.param('permissionnames').split(',')
+    return RoleService.addPermissionToRole(rolename, permissionNames)
+  }),
 
   // delete /role/:rolename/permissions/:permissioname
-  removePermissionsFromRole: sails.utils.wrapCtrlReturn(RoleService.removePermissionFromRole)
-
+  removePermissionsFromRole: sails.utils.wrapCtrlReturn(function removePermissionsFromRole (req, res) {
+    let rolename = req.param('rolename')
+    let permissionNames = req.param('permissionnames').split(',')
+    return RoleService.removePermissionsFromRole(rolename, permissionNames)
+  })
 }
