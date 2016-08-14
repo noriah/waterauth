@@ -51,4 +51,5 @@ module.exports = function PermissionPolicy (req, res, next) {
 
     next()
   })
+  .catch(next)
 }

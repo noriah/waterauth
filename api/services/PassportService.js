@@ -1,11 +1,10 @@
 'use strict'
 
-var passportlib = require('passport')
-var R = require('ramda')
-var _ = require('lodash')
+const R = require('ramda')
+const _ = require('lodash')
 
-var Passport
-var User
+let Passport
+let User
 
 sails.after('hook:orm:loaded', () => {
   ({
@@ -38,11 +37,23 @@ sails.after('hook:orm:loaded', () => {
  * User model free of bloat.
  */
 
-var PassportService = {}
-PassportService.passportLib = passportlib
+var PassportService = {
+  passportLib: require('passport'),
+  // Load authentication protocols
+  protocols: require('./protocols')
+}
 
-// Load authentication protocols
-PassportService.protocols = require('./protocols')
+PassportService.createUserFromPP = function createUserFromPP (user) {
+  return User.create(user)
+  .then(function (user2) {
+    user = user2
+    return Passport.create(_.extend({ user: user.id }, query))
+  })
+  .then(function (pp2) {
+    return user
+  })
+}
+
 
 /**
  * Connect a third-party profile to a local user
@@ -78,7 +89,7 @@ PassportService.protocols = require('./protocols')
  * @param {Function} next
  */
 PassportService.connect = function connect (req, query, profile, next) {
-  var user = { }
+  let user = { }
 
   req.session.tokens = query.tokens
 
@@ -87,7 +98,7 @@ PassportService.connect = function connect (req, query, profile, next) {
 
   // Use profile.provider or fallback to the query.provider if it is undefined
   // as is the case for OpenID, for example
-  var provider = profile.provider || query.provider
+  let provider = profile.provider || query.provider
 
   // If the provider cannot be identified we cannot match it to a passport so
   // throw an error and let whoever's next in line take care of it.
@@ -136,8 +147,8 @@ PassportService.connect = function connect (req, query, profile, next) {
       // Action:   Create a new user and assign them a passport.
       if (!pp) {
         return User.create(user)
-        .then(function (_user) {
-          user = _user
+        .then(function (user2) {
+          user = user2
           return Passport.create(_.extend({ user: user.id }, query))
         })
         .then(function (pp2) {
@@ -158,9 +169,18 @@ PassportService.connect = function connect (req, query, profile, next) {
         return pp.save().then(() => {
             // Fetch the user associated with the Passport
           return User.findOne(pp.user)
+          .then(function (user2) {
+            if (!user2) {
+              // Scenario: An existing passport does not have a user.
+              // Action:   Recreate the user
+              return User.create(user)
+            }
+
+            return user2
+          })
         })
-        .then(function (user) {
-          return next(null, user)
+        .then(function (user2) {
+          return next(null, user2)
         })
         .catch(next)
       }
@@ -194,9 +214,9 @@ PassportService.connect = function connect (req, query, profile, next) {
  * @param  {Object} res
  */
 PassportService.endpoint = function endpoint (req, res) {
-  var strategies = sails.config.passport
-  var provider = req.param('provider')
-  var options = {}
+  let strategies = sails.config.passport
+  let provider = req.param('provider')
+  let options = {}
 
   // If a provider doesn't exist for this endpoint, send the user back to the
   // login page
@@ -226,8 +246,10 @@ PassportService.endpoint = function endpoint (req, res) {
  * @param {Function} next
  */
 PassportService.callback = function callback (req, res, next) {
-  var provider = req.param('provider', 'local')
-  var action = req.param('action')
+  let provider = req.param('provider', 'local')
+  let action = req.param('action')
+
+  sails.log.debug(provider, action)
 
   // PassportService.js wasn't really built for local user registration, but it's nice
   // having it tied into everything else.
@@ -263,8 +285,8 @@ PassportService.callback = function callback (req, res, next) {
  * @param  {Object} res
  */
 PassportService.disconnect = function disconnect (req, res, next) {
-  var user = req.user
-  var provider = req.param('provider')
+  let user = req.user
+  let provider = req.param('provider')
 
   return Passport.findOne({
     provider: provider,

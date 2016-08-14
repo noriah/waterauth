@@ -87,6 +87,7 @@ module.exports = {
 
     PassportService.callback(req, res, (err, user) => {
       if (err || !user) {
+        console.log(req.session)
         sails.log.warn('AuthController.callback', user, err)
         return negotiateError(err)
       }
