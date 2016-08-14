@@ -42,6 +42,7 @@ class Waterauth extends lib.HookBuilder {
 
   configure () {
     lib.passport.loadStrategies()
+    .catch(sails.log.error)
 
     if (!R.is(Object, this.sails.config.waterauth)) {
       this.sails.config.waterauth = {}
@@ -198,10 +199,10 @@ class Waterauth extends lib.HookBuilder {
         email: sails.config.waterauth.adminEmail,
         firstName: sails.config.waterauth.adminFirstName || 'Admin',
         lastname: sails.config.waterauth.adminLastName || 'McAdminFace',
-        roles: [ R.find(R.propEq('name', 'root'), this.roles).id ],
+        roles: [ R.find(R.propEq('name', 'root'), this.roles).id ]
         // createdBy: 1,
         // owner: 1,
-        model: userModel.id
+        // model: userModel.id
       })
     })
   }

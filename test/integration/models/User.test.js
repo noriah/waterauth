@@ -3,30 +3,17 @@
  * to solve this problem we use only one before All and after All to start and
  * stop the server
  */
-var _ = require('lodash')
-var Sails = require('sails')
-var testingConfig = require('../config/env/testing')
-var path = require('path')
-var sails
+describe('UserModel', function () {
 
-before(function (done) {
-  this.timeout(30000)
-
-  var config = _.extend(testingConfig, {
-    appPath: path.resolve(__dirname, '..')
+  describe('#find()', function () {
+    it('should check find function', function (done) {
+      User.find()
+      .then(function (results) {
+        // some tests
+        done()
+      })
+      .catch(done)
+    })
   })
 
-  Sails.lift(config, function (err, server) {
-    global.sails = server
-
-    if (err) {
-      return done(err)
-    }
-    // here you can load fixtures, etc.
-    done(err, sails)
-  })
-})
-
-after(function (done) {
-  global.sails.lower(done)
 })
