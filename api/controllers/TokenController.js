@@ -43,11 +43,11 @@ module.exports = {
         return User.findOne(req.user.id)
         .populate('roles', {active: true})
         .then(user => {
-          tokenData.roles = user.roles
+          tokenData.roles = R.pluck('name', user.roles)
 
-          if (sails.utils.isProduction()) {
-            tokenData.roles = R.pluck('name', tokenData.roles)
-          }
+          // if (sails.utils.isProduction()) {
+          //   tokenData.roles = R.pluck('name', tokenData.roles)
+          // }
 
           return tokenData
         })
@@ -83,10 +83,10 @@ module.exports = {
     // .populate('permissions')
     .populate('roles', {active: true})
     .then(user => {
-      let roles = user.roles
-      if (sails.utils.isProduction()) {
-        roles = R.pluck('name', roles)
-      }
+      let roles = R.pluck('name', user.roles)
+      // if (sails.utils.isProduction()) {
+      //   roles = R.pluck('name', roles)
+      // }
       return res.json(200, roles)
     })
     .catch(next)

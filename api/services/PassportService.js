@@ -43,18 +43,6 @@ var PassportService = {
   protocols: require('./protocols')
 }
 
-PassportService.createUserFromPP = function createUserFromPP (user) {
-  return User.create(user)
-  .then(function (user2) {
-    user = user2
-    return Passport.create(_.extend({ user: user.id }, query))
-  })
-  .then(function (pp2) {
-    return user
-  })
-}
-
-
 /**
  * Connect a third-party profile to a local user
  *

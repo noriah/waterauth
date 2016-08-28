@@ -1,5 +1,7 @@
 'use strict'
 
+const R = require('ramda')
+
 let PermissionService = sails.services.permissionservice
 
 /**
@@ -44,7 +46,19 @@ module.exports = function PermissionPolicy (req, res, next) {
       'for', req.user.username)
 
     if (!permissions || permissions.length === 0) {
-      return res.send(403, { error: PermissionService.getErrorMessage(options) })
+      let e = {
+        error: 'E_PERMISSION_DENIED',
+        context: {
+          httpMethod: options.httpMethod,
+          controller: options.controller.name,
+          property: options.ctrlProperty
+        }
+      }
+
+      if (!sails.utils.isProduction()) {
+        e.message = PermissionService.getErrorMessage(options)
+      }
+      return res.json(403, e)
     }
 
     req.permissions = permissions
