@@ -28,10 +28,18 @@ module.exports = {
    * @param {Object} res
    */
   logout: function logout (req, res, next) {
-    req.logout()
+    if (req.logout) {
+      req.logout()
+    }
 
-    delete req.user
-    delete req.session.passport
+    if (req.user) {
+      delete req.user
+    }
+
+    if (req.session.passport) {
+      delete req.session.passport
+    }
+
     req.session.authenticated = false
 
     if (!req.isSocket) {

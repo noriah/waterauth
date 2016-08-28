@@ -30,10 +30,8 @@ const methods = ['login', 'logIn', 'logout', 'logOut', 'isAuthenticated', 'isUna
 module.exports = function PassportPolicy (req, res, next) {
   // Initialize Passport
   passportlib.initialize()(req, res, () => {
-    sails.log.debug(req.session)
     // Use the built-in sessions
     passportlib.session()(req, res, () => {
-      sails.log.debug(req.session)
 
       if (R.isNil(req.user)) {
         req.session.authenticated = false
