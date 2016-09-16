@@ -24,7 +24,7 @@ module.exports.jwt = {
 
   includePermissions: false,
 
-  trackTokens: true,
+  trackTokens: false,
 
   clockTolerance: 10
 }

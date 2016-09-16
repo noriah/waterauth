@@ -7,7 +7,8 @@ var defFunctions = [
   'findOne',
   'create',
   'update',
-  'destroy'
+  'destroy',
+  'populate'
 ]
 
 var falsyArr = [false, null, 0, '', undefined, NaN]

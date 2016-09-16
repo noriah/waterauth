@@ -4,6 +4,11 @@ const R = require('ramda')
 const url = require('url')
 
 module.exports = function AuditPolicy (req, res, next) {
+  // Don't log get methods, we dont care about reading right now
+  if (!sails.config.waterauth.trackGetRequests && req.method === 'GET') {
+    return next()
+  }
+
   let ipAddress = req.headers['x-forwarded-for'] ||
   (req.connection && req.connection.remoteAddress) ||
   (req.socket && req.socket.handshake.address)
