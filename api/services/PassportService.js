@@ -76,17 +76,18 @@ var PassportService = {
  * @param {Object}   profile
  * @param {Function} next
  */
-PassportService.connect = function connect (req, query, profile, next) {
-  let user = { }
+PassportService.connect = function connect (req, query, profile, next, isSub) {
+  // let user = { }
 
   req.session.tokens = query.tokens
 
   // Get the authentication provider from the query.
-  query.provider = req.param('provider')
 
   // Use profile.provider or fallback to the query.provider if it is undefined
   // as is the case for OpenID, for example
-  let provider = profile.provider || query.provider
+  let provider = profile.provider || req.param('provider')
+
+  query.provider = provider
 
   // If the provider cannot be identified we cannot match it to a passport so
   // throw an error and let whoever's next in line take care of it.
@@ -94,36 +95,8 @@ PassportService.connect = function connect (req, query, profile, next) {
     return next(new Error('No authentication provider was identified.'))
   }
 
-  sails.log.debug('auth profile', profile.id, profile.provider, profile.emails[0].value || profile.username)
-
-  // If the profile object contains a list of emails, grab the first one and
-  // add it to the user.
-  if (profile.emails && profile.emails[0]) {
-    user.email = profile.emails[0].value
-  }
-  // If the profile object contains a username, add it to the user.
-  if (R.has('username', profile)) {
-    user.username = profile.username
-  }
-
-  if (R.has('givenName', profile.name)) {
-    user.firstName = profile.name.givenName
-  }
-
-  if (R.has('familyName', profile.name)) {
-    user.lastName = profile.name.familyName
-  }
-
-  if (R.has('displayName', profile)) {
-    user.displayName = profile.displayName
-  }
-
-  // If neither an email or a username was available in the profile, we don't
-  // have a way of identifying the user in the future. Throw an error and let
-  // whoever's next in the line take care of it.
-  if (!user.username && !user.email) {
-    return next(new Error('Neither a username nor email was available'))
-  }
+  // sails.log.debug('auth profile', profile.id, profile.provider, profile.emails[0].value || profile.username)
+  sails.log.debug('auth profile', profile)
 
   Passport.findOne({
     provider: provider,
@@ -134,6 +107,37 @@ PassportService.connect = function connect (req, query, profile, next) {
       //           authentication provider.
       // Action:   Create a new user and assign them a passport.
       if (!pp) {
+        let user = {}
+
+        // If the profile object contains a list of emails, grab the first one and
+        // add it to the user.
+        if (profile.emails && profile.emails[0]) {
+          user.email = profile.emails[0].value
+        }
+        // If the profile object contains a username, add it to the user.
+        if (R.has('username', profile)) {
+          user.username = profile.username
+        }
+
+        if (R.has('givenName', profile.name)) {
+          user.firstName = profile.name.givenName
+        }
+
+        if (R.has('familyName', profile.name)) {
+          user.lastName = profile.name.familyName
+        }
+
+        if (R.has('displayName', profile)) {
+          user.displayName = profile.displayName
+        }
+
+        // If neither an email or a username was available in the profile, we don't
+        // have a way of identifying the user in the future. Throw an error and let
+        // whoever's next in the line take care of it.
+        if (!user.username && !user.email) {
+          return Promise.reject(new Error('Neither a username nor email was available'))
+        }
+
         return User.create(user)
         .then(function (user2) {
           user = user2
@@ -142,7 +146,7 @@ PassportService.connect = function connect (req, query, profile, next) {
         .then(function (pp2) {
           return next(null, user)
         })
-        .catch(next)
+        // .catch(next)
 
       // Scenario: An existing user is trying to log in using an already
       //           connected passport.
@@ -160,8 +164,14 @@ PassportService.connect = function connect (req, query, profile, next) {
           .then(function (user2) {
             if (!user2) {
               // Scenario: An existing passport does not have a user.
-              // Action:   Recreate the user
-              return User.create(user)
+              // Action:   Delete the passport and re run connect
+              if (isSub) {
+                return Promise.reject(new Error('Passport exists but user does not. Could not solve'))
+              }
+              return Passport.destroy(pp.id)
+              .then(() => {
+                return PassportService.connect(req, query, profile, next, true)
+              })
             }
 
             return user2
@@ -170,7 +180,7 @@ PassportService.connect = function connect (req, query, profile, next) {
         .then(function (user2) {
           return next(null, user2)
         })
-        .catch(next)
+        // .catch(next)
       }
     } else {
       // Scenario: A user is currently logged in and trying to connect a new
@@ -181,7 +191,7 @@ PassportService.connect = function connect (req, query, profile, next) {
         .then(function (pp2) {
           return next(null, req.user)
         })
-        .catch(next)
+        // .catch(next)
       // Scenario: The user is a nutjob or spammed the back-button.
       // Action:   Simply pass along the already established session.
       } else {
@@ -263,8 +273,6 @@ PassportService.callback = function callback (req, res, next) {
     }
   }
 }
-
-
 
 /**
  * Disconnect a passport from a user

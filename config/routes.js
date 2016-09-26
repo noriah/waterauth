@@ -13,9 +13,11 @@ module.exports.routes = {
   'post /auth/local/:action': 'AuthController.callback',
 
   'get /auth/:provider': 'AuthController.provider',
+  'post /auth/:provider': 'AuthController.callback',
   'get /auth/:provider/callback': 'AuthController.callback',
   'post /auth/:provider/callback': 'AuthController.callback',
   'get /auth/:provider/:action': 'AuthController.callback',
+  'post /auth/:provider/:action': 'AuthController.callback',
 
   //  ////// //
   //  TOKENS //
