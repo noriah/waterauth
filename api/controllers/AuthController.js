@@ -118,12 +118,12 @@ module.exports = {
         // `next` query param
         if (req.query.next) {
           let url = AuthService.buildCallbackNextUrl(req)
-          // return res.redirect(url)
-          return res.status(302).set('Location', url)
+          return res.redirect(url)
+          // return res.status(302).set('Location', url)
         } else if (sails.config.passport[provider] && sails.config.passport[provider].next) {
-          let url = sails.config.passport[provider].next
-          // return res.redirect(sails.config.passport[provider].next)
-          return res.status(302).set('Location', url)
+          // let url = sails.config.passport[provider].next
+          return res.redirect(sails.config.passport[provider].next)
+          // return res.status(302).set('Location', url)
         }
 
         return res.json(200, user)
