@@ -14,5 +14,5 @@ module.exports = function SessionAuthPolicy (req, res, next) {
     return next()
   }
 
-  res.unauthorized('No data for you!')
+  res.json(403, {error: 'No data for you!'})
 }

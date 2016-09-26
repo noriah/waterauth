@@ -76,7 +76,6 @@ module.exports = {
    * @param {Object} res
    */
   callback: function callback (req, res) {
-    let provider = req.param('provider')
     let action = req.param('action')
 
     function negotiateError (err) {
@@ -93,10 +92,14 @@ module.exports = {
       }
     }
 
-    PassportService.callback(req, res, (err, user) => {
+    let provider = req.param('provider')
+
+    PassportService.callback(req, res, (err, user, info, status) => {
       if (err || !user) {
-        console.log(req.session)
-        sails.log.warn('AuthController.callback', user, err)
+        sails.log.warn('AuthController.callback', user, err, info, status)
+        if (!err && info) {
+          return negotiateError(info)
+        }
         return negotiateError(err)
       }
 
@@ -115,12 +118,14 @@ module.exports = {
         // `next` query param
         if (req.query.next) {
           let url = AuthService.buildCallbackNextUrl(req)
-          return res.redirect(url)
+          // return res.redirect(url)
+          return res.status(302).set('Location', url)
         } else if (sails.config.passport[provider] && sails.config.passport[provider].next) {
-          return res.redirect(sails.config.passport[provider].next)
+          let url = sails.config.passport[provider].next
+          // return res.redirect(sails.config.passport[provider].next)
+          return res.status(302).set('Location', url)
         }
 
-        // return res.redirect('/google-callback.html')
         return res.json(200, user)
       })
     })

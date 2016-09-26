@@ -3,6 +3,7 @@
 const local = require('./local')
 const basic = require('./basic')
 const bearer = require('./bearer')
+const delegated = require('./delegated')
 const oauth = require('./oauth')
 const oauth2 = require('./oauth2')
 const openid = require('./openid')
@@ -24,6 +25,7 @@ module.exports = {
   local,
   basic,
   bearer,
+  delegated,
   oauth,
   oauth2,
   openid
