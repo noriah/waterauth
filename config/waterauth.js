@@ -3,6 +3,8 @@ module.exports.waterauth = {
     rounds: 8
   },
 
+  enforceIndex: true,
+
   modelConnectionName: '',
 
   adminFirstName: process.env.ADMIN_FNAME || 'Admin',

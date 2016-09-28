@@ -1,6 +1,6 @@
 {
   "name": "waterauth",
-  "version": "0.1.31",
+  "version": "0.1.40",
   "description": "User Authentication for Sails using Passport and/or JWT",
   "main": "index.js",
   "scripts": {

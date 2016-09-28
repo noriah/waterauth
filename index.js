@@ -61,7 +61,7 @@ class Waterauth extends lib.HookBuilder {
     /**
      * Local cache of Model name -> id mappings to avoid excessive database lookups.
      */
-    this.sails.config.blueprints.populate = false
+    // this.sails.config.blueprints.populate = false
   }
 
   initialize (next) {
@@ -75,7 +75,8 @@ class Waterauth extends lib.HookBuilder {
     }
 
     this.sails.after('hook:orm:loaded', () => {
-      this.syncModels()
+      this.syncModelIndicies()
+      .then(() => this.syncModels())
       .then(() => this.syncControllers())
       .then(() => this.updateRoles())
       .then(() => this.createUpdateAdmin())
@@ -99,6 +100,16 @@ class Waterauth extends lib.HookBuilder {
       R.intersection(permissionPolicies, policies['*']).length === permissionPolicies.length,
       policies.AuthController && R.is(Object, policies.AuthController) && R.contains('PassportPolicy', policies.AuthController['*'])
     ])
+  }
+
+  syncModelIndicies () {
+    if (!this.sails.config.waterauth.enforceIndex) {
+      return Promise.resolve()
+    }
+    sails.log.verbose('waterauth is ensuring model indicies exist')
+
+    let wAuthModels = this._builder.models
+    return lib.models.runIndexCheck(wAuthModels)
   }
 
   syncModels () {
