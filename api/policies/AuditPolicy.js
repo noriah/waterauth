@@ -4,6 +4,9 @@ const R = require('ramda')
 const url = require('url')
 
 module.exports = function AuditPolicy (req, res, next) {
+  if (!sails.config.waterauth.trackRequests) {
+    return next()
+  }
   // Don't log get methods, we dont care about reading right now
   if (!sails.config.waterauth.trackGetRequests && req.method === 'GET') {
     return next()

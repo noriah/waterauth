@@ -13,6 +13,7 @@ module.exports.waterauth = {
   adminUsername: process.env.ADMIN_USERNAME || 'admin',
   adminPassword: process.env.ADMIN_PASSWORD || 'admin1234',
 
+  trackRequests: true,
   trackGetRequests: false
 
 }

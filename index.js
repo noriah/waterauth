@@ -198,7 +198,7 @@ class Waterauth extends lib.HookBuilder {
       throw new Error('Missing auth config requirement')
     }
 
-    return sails.models.user.findOne({ username: sails.config.waterauth.adminUsername })
+    return sails.models.user.findOne({ email: sails.config.waterauth.adminEmail })
     .then(user => {
       if (user) {
         return user
