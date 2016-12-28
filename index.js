@@ -191,7 +191,7 @@ class Waterauth extends lib.HookBuilder {
   createUpdateAdmin () {
     sails.log.verbose('Waterauth is updating the admin user')
 
-    let userModel = R.find(R.propEq('name', 'User'), this.models)
+    // let userModel = R.find(R.propEq('name', 'User'), this.models)
     let keys = ['adminUsername', 'adminPassword', 'adminEmail']
     let hasKeys = R.all(R.identity, R.map(key => !R.isNil(sails.config.waterauth[key]), keys))
     if (!hasKeys) {

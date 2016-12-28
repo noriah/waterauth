@@ -11,17 +11,17 @@ const R = require('ramda')
 let PermissionService = sails.services.permissionservice
 let RoleService = sails.services.roleservice
 
-let Permission
-let Role
-let User
+// let Permission
+// let Role
+// let User
 
-sails.after('hook:orm:loaded', () => {
-  ({
-    permission: Permission,
-    role: Role,
-    user: User
-  } = sails.models)
-})
+// sails.after('hook:orm:loaded', () => {
+//   ({
+//     permission: Permission,
+//     role: Role,
+//     user: User
+//   } = sails.models)
+// })
 
 module.exports = {
   _config: { actions: true, shortcuts: false, rest: false },

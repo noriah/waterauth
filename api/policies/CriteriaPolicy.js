@@ -116,7 +116,7 @@ function bindResponsePolicy (req, res, criteria) {
 }
 
 function responsePolicy (criteria, _data, options) {
-  let req = this.req
+  // let req = this.req
   let res = this.res
   // var user = req.owner
   // var method = PermissionService.getMethod(req)

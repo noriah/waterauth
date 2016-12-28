@@ -83,7 +83,7 @@ module.exports = {
           sails.log.error(e)
           next(e)
         })
-    },*/
+    }, */
     function attachDefaultRole (user, next) {
       sails.log('User.afterCreate.attachDefaultRole', user)
       sails.models.user.findOne(user.id)

@@ -20,7 +20,7 @@ module.exports = {
       type: 'string'
     },
     url: {
-      type: 'string',
+      type: 'string'
       // url: true
     },
     method: {
