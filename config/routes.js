@@ -9,8 +9,8 @@ module.exports.routes = {
   // //// //
   // AUTH //
   // //// //
-  'post /auth/local': 'AuthController.callback',
-  'post /auth/local/:action': 'AuthController.callback',
+  // 'post /auth/local': 'AuthController.callback',
+  // 'post /auth/local/:action': 'AuthController.callback',
 
   'get /auth/:provider': 'AuthController.provider',
   'post /auth/:provider': 'AuthController.callback',

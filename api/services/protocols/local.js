@@ -206,7 +206,7 @@ function login (req, identifier, password, next) {
         req.flash('error', 'Error.Passport.Username.NotFound')
       }
 
-      return next(null, false)
+      return next({error: 'E_CREDENTIALS_MISSING'}, false)
     }
 
     sails.models.passport.findOne({
@@ -224,14 +224,14 @@ function login (req, identifier, password, next) {
 
           if (!res) {
             req.flash('error', 'Error.Passport.Password.Wrong')
-            return next(null, false)
+            return next({error: 'E_CREDENTIALS_BAD'}, false)
           } else {
             return next(null, user, pp)
           }
         })
       } else {
         req.flash('error', 'Error.Passport.Password.NotSet')
-        return next(null, false)
+        return next({error: 'E_CREDENTIALS_MISSING'}, false)
       }
     })
   })

@@ -32,16 +32,16 @@ module.exports = function PassportPolicy (req, res, next) {
   passportlib.initialize()(req, res, () => {
     // Use the built-in sessions
     passportlib.session()(req, res, () => {
-      if (R.isNil(req.user)) {
-        req.session.authenticated = false
-        return next()
-      }
-
-      // Make the request's passport methods available for socket
+            // Make the request's passport methods available for socket
       if (req.isSocket) {
         R.forEach(method => {
           req[method] = http.IncomingMessage.prototype[method].bind(req)
         }, methods)
+      }
+
+      if (R.isNil(req.user)) {
+        req.session.authenticated = false
+        return next()
       }
 
       // Make the user available throughout the frontend (for views)
