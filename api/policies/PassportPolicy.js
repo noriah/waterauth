@@ -4,6 +4,9 @@ const R = require('ramda')
 const http = require('http')
 
 const methods = ['login', 'logIn', 'logout', 'logOut', 'isAuthenticated', 'isUnauthenticated']
+
+const ppLibInit = passportlib.initialize()
+const ppLibSession = passportlib.session()
 /**
  * Passport Middleware
  *
@@ -29,10 +32,10 @@ const methods = ['login', 'logIn', 'logout', 'logOut', 'isAuthenticated', 'isUna
  */
 module.exports = function PassportPolicy (req, res, next) {
   // Initialize Passport
-  passportlib.initialize()(req, res, () => {
+  ppLibInit(req, res, () => {
     // Use the built-in sessions
-    passportlib.session()(req, res, () => {
-            // Make the request's passport methods available for socket
+    ppLibSession(req, res, () => {
+      // Make the request's passport methods available for socket
       if (req.isSocket) {
         R.forEach(method => {
           req[method] = http.IncomingMessage.prototype[method].bind(req)

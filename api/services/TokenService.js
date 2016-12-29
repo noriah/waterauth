@@ -216,13 +216,13 @@ TokenService.validateToken = function validateToken (token) {
     return Jwt.findOne({token})
     .then(jwtObj => {
       if (R.isNil(jwtObj)) {
-        // res.json(401, {error: 'E_TOKEN_NOT_FOUND'})
+        // res.json(401, {code: 'E_TOKEN_NOT_FOUND'})
         // return Promise.reject(new Error('Token not found'))
         return Promise.reject(new sails.utils.ServiceError(401, 'Token not found', 'E_TOKEN_INVALID'))
       }
 
       if (jwtObj.revoked) {
-        // res.json(401, {error: 'E_TOKEN_REVOKED'})
+        // res.json(401, {code: 'E_TOKEN_REVOKED'})
         return Promise.reject(new sails.utils.ServiceError(401, 'Token as been revoked', 'E_TOKEN_REVOKED'))
       }
 

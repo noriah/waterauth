@@ -35,9 +35,9 @@ module.exports = {
       via: 'user'
     },
     roles: {
-      collection: 'Role',
-      via: 'users',
-      dominant: true
+      collection: 'role',
+      via: 'user',
+      through: 'userrolemap'
     },
     // permissions: {
     //   collection: 'Permission',
@@ -62,6 +62,10 @@ module.exports = {
   },
 
   beforeCreate: function beforeCreate (user, next) {
+    if (R.isEmpty(user.displayName) || R.isNil(user.displayName)) {
+      user.displayName = user.firstName + ' ' + user.lastName
+    }
+
     if (R.isEmpty(user.username) || R.isNil(user.username)) {
       user.username = user.email
     }
@@ -85,7 +89,7 @@ module.exports = {
         })
     }, */
     function attachDefaultRole (user, next) {
-      sails.log('User.afterCreate.attachDefaultRole', user)
+      // sails.log('User.afterCreate.attachDefaultRole', user)
       sails.models.user.findOne(user.id)
         .populate('roles')
         .then(_user => {

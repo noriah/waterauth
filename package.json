@@ -1,6 +1,6 @@
 {
   "name": "waterauth",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "User Authentication for Sails using Passport and/or JWT",
   "main": "index.js",
   "scripts": {
@@ -34,6 +34,7 @@
     "passport-local": "^1.0.0",
     "pluralize": "^3.1.0",
     "require-all": "^2.1.0",
+    "ramda": "^0.23.0",
     "sails": "^0.12.11",
     "url": "^0.11.0",
     "uuid": "^3.0.0",

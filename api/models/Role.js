@@ -34,8 +34,9 @@ module.exports = {
       type: 'string'
     },
     users: {
-      collection: 'User',
-      via: 'roles'
+      collection: 'user',
+      via: 'role',
+      through: 'userrolemap'
     },
     active: {
       type: 'boolean',

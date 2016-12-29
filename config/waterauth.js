@@ -14,6 +14,20 @@ module.exports.waterauth = {
   adminPassword: process.env.ADMIN_PASSWORD || 'admin1234',
 
   trackRequests: true,
-  trackGetRequests: false
+  trackGetRequests: false,
+
+  // Possible fields for local register
+  local: {
+    fields: [
+      'firstName',
+      'lastName',
+      'username',
+      'name',
+      'displayName',
+      'phoneNumber',
+      'phone',
+      'email'
+    ]
+  }
 
 }

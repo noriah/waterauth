@@ -4,14 +4,6 @@ const R = require('ramda')
 
 let TokenService = sails.services.tokenservice
 
-let User
-
-sails.after('hook:orm:loaded', () => {
-  ({
-    user: User
-  } = sails.models)
-})
-
 /**
  * Policy to check that request is done via authenticated user. This policy uses existing
  * JWT tokens to validate that user is authenticated. If use is not authenticate policy
@@ -38,12 +30,12 @@ module.exports = function TokenAuthPolicy (req, res, next) {
     req.token = req.token || {}
     req.token.id = tObj.id
     req.token.owner = tObj.owner
-    return User.findOne(tObj.owner)
+    return sails.models.user.findOne(tObj.owner)
     .populate('roles')
   })
   .then(user => {
     if (!user) {
-      return res.json(401, {error: 'E_TOKEN_INVALID'})
+      return res.json(401, {code: 'E_TOKEN_INVALID'})
     }
 
     req.user = user
@@ -63,7 +55,7 @@ module.exports = function TokenAuthPolicy (req, res, next) {
   })
   .catch(err => {
     if (err instanceof sails.utils.ServiceError || !R.isNil(err.serviceError)) {
-      return res.json(err.errNum, {error: err.code})
+      return res.json(err.errNum, {code: err.code})
     }
     // } else if (!R.isNil(err)) {
       // res.json(500, {stack: err.stack})

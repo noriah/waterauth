@@ -47,7 +47,7 @@ module.exports = function PermissionPolicy (req, res, next) {
 
     if (!permissions || permissions.length === 0) {
       let e = {
-        error: 'E_PERMISSION_DENIED',
+        code: 'E_PERMISSION_DENIED',
         context: {
           httpMethod: options.httpMethod,
           controller: options.controller.name,

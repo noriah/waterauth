@@ -247,7 +247,7 @@ PassportService.callback = function callback (req, res, next) {
   let provider = req.param('provider', 'local')
   let action = req.param('action')
 
-  sails.log.debug(provider, action)
+  sails.log.debug('Passport action', provider, action)
 
   // PassportService.js wasn't really built for local user registration, but it's nice
   // having it tied into everything else.

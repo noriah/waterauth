@@ -2,6 +2,7 @@
 const crypto = require('crypto')
 const base64URL = require('base64url')
 const SAError = require('../../../lib/error/SAError.js')
+const R = require('ramda')
 
 /**
  * Local Authentication Protocol
@@ -47,7 +48,9 @@ function createUser (_user, next) {
   let password = _user.password
   delete _user.password
 
-  return sails.models.user.create(_user, function (err, user) {
+  let fields = R.pick(sails.config.waterauth.local.fields, _user)
+
+  return sails.models.user.create(fields, function (err, user) {
     if (err) {
       sails.log.error(err)
 
@@ -149,6 +152,7 @@ function connect (req, res, next) {
   let user = req.user
   let password = req.param('password')
   let Passport = sails.models.passport
+  let accessToken = generateToken()
 
   Passport.findOne({
     protocol: 'local',
@@ -162,7 +166,8 @@ function connect (req, res, next) {
       Passport.create({
         protocol: 'local',
         password: password,
-        user: user.id
+        user: user.id,
+        accessToken: accessToken
       }, function (err, passport) {
         return next(err, user)
       })
@@ -206,7 +211,7 @@ function login (req, identifier, password, next) {
         req.flash('error', 'Error.Passport.Username.NotFound')
       }
 
-      return next({error: 'E_CREDENTIALS_MISSING'}, false)
+      return next({code: 'E_CREDENTIALS_MISSING'}, false)
     }
 
     sails.models.passport.findOne({
@@ -224,14 +229,14 @@ function login (req, identifier, password, next) {
 
           if (!res) {
             req.flash('error', 'Error.Passport.Password.Wrong')
-            return next({error: 'E_CREDENTIALS_BAD'}, false)
+            return next({code: 'E_CREDENTIALS_BAD'}, false)
           } else {
             return next(null, user, pp)
           }
         })
       } else {
         req.flash('error', 'Error.Passport.Password.NotSet')
-        return next({error: 'E_CREDENTIALS_MISSING'}, false)
+        return next({code: 'E_CREDENTIALS_MISSING'}, false)
       }
     })
   })

@@ -46,6 +46,9 @@ module.exports.policies = {
   },
 
   UserController: {
+    create: [
+      'PassportPolicy'
+    ],
     me: [
       'PassportPolicy',
       'SessionAuth'
