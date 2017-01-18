@@ -49,6 +49,12 @@ module.exports.policies = {
     create: [
       'PassportPolicy'
     ],
+    sendVerificationEmail: [
+      'PassportPolicy'
+    ],
+    verifyEmail: [
+      'PassportPolicy'
+    ],
     me: [
       'PassportPolicy',
       'SessionAuth'

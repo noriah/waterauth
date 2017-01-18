@@ -10,6 +10,7 @@ const R = require('ramda')
 
 let PassportService = sails.services.passportservice
 let UserService = sails.services.userservice
+let VerificationService = sails.services.verificationservice
 
 // let User
 
@@ -72,5 +73,24 @@ module.exports = {
 
   me: function (req, res) {
     res.json(200, {user: req.user})
+  },
+
+  sendVerificationEmail: function sendVerificationEmail (req, res) {
+    VerificationService.sendVerificationEmail(req.body, (err, status) => {
+      if (err) {
+        return res.negotiate(err)
+      }
+      res.json(200, {status: true})
+    })
+  },
+
+  verifyEmail: function verifyEmail (req, res) {
+    let token = req.param('token')
+    VerificationService.verify(token, (err, status) => {
+      if (err) {
+        return res.negotiate(err)
+      }
+      res.json(200, {status: true})
+    })
   }
 }

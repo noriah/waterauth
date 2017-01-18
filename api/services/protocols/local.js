@@ -48,6 +48,7 @@ function createUser (_user, next) {
   let password = _user.password
   delete _user.password
 
+  // Pick fields so we don't introduce malicious data into the database
   let fields = R.pick(sails.config.waterauth.local.fields, _user)
 
   return sails.models.user.create(fields, function (err, user) {
@@ -75,6 +76,10 @@ function createUser (_user, next) {
         return user.destroy(function (destroyErr) {
           return next(destroyErr || err)
         })
+      }
+
+      if (sails.config.waterauth.local.verifyEmail) {
+        user.verifyEmail = true
       }
 
       return next(null, user)
@@ -230,6 +235,16 @@ function login (req, identifier, password, next) {
           if (!res) {
             req.flash('error', 'Error.Passport.Password.Wrong')
             return next({code: 'E_CREDENTIALS_BAD'}, false)
+          } else if (sails.config.waterauth.local.verifyEmail) {
+            return sails.models.verify.findOne({user: user.id})
+            .then(verify => {
+              if (!verify || !verify.verified) {
+                req.flash('error', 'Error.Passport.Email.Verify')
+                return next({code: 'E_EMAIL_VERIFY'}, false)
+              }
+              return next(null, user, pp)
+            })
+            .catch(err => next(err))
           } else {
             return next(null, user, pp)
           }

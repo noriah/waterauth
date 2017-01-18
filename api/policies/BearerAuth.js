@@ -16,5 +16,5 @@
 let PassportService = sails.services.passportservice
 
 module.exports = function BearerAuthPolicy (req, res, next) {
-  return PassportService.authenticate('bearer', { session: false })(req, res, next)
+  return PassportService.passportLib.authenticate('bearer', { session: false })(req, res, next)
 }

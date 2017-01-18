@@ -5,8 +5,9 @@ const R = require('ramda')
 let TokenService = sails.services.tokenservice
 
 /**
- * Policy to check that request is done via authenticated user. This policy uses existing
- * JWT tokens to validate that user is authenticated. If use is not authenticate policy
+ * Policy to check that request is done via authenticated user.
+ * This policy uses existing JWT tokens to validate that user
+ * is authenticated. If use is not authenticated policy
  * sends 401 res back to client.
  *
  * @param   {Request}   req         Request object

@@ -38,7 +38,7 @@ TokenService.getTokenFromRequest = function getTokenFromRequest (req) {
         let scheme = parts[0]
         let credentials = parts[1]
 
-        if (/^Bearer$/i.test(scheme)) {
+        if (/^(Token|Bearer)$/i.test(scheme)) {
           return resolve(credentials)
         }
       } else {
@@ -223,7 +223,7 @@ TokenService.validateToken = function validateToken (token) {
 
       if (jwtObj.revoked) {
         // res.json(401, {code: 'E_TOKEN_REVOKED'})
-        return Promise.reject(new sails.utils.ServiceError(401, 'Token as been revoked', 'E_TOKEN_REVOKED'))
+        return Promise.reject(new sails.utils.ServiceError(401, 'Token has been revoked', 'E_TOKEN_REVOKED'))
       }
 
       return jwtObj

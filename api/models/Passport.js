@@ -42,6 +42,7 @@ function hashPassword (pp, next) {
  */
 const PassportModel = {
   autoCreatedBy: false,
+  publishUpdates: false,
 
   attributes: {
     // Required field: Protocol
@@ -57,6 +58,7 @@ const PassportModel = {
     // When the local strategy is employed, a password will be used as the
     // means of authentication along with either a username or an email.
     password: { type: 'string', minLength: 8 },
+
     // accessToken is used to authenticate API requests. it is generated when a
     // passport (with protocol 'local') is created for a user.
     accessToken: { type: 'string' },

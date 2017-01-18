@@ -22,7 +22,7 @@ module.exports = {
       notNull: true
     },
     tokens: {
-      collection: 'Jwt',
+      collection: 'jwt',
       via: 'owner'
     },
     lastName: {
@@ -31,7 +31,7 @@ module.exports = {
       notNull: true
     },
     passports: {
-      collection: 'Passport',
+      collection: 'passport',
       via: 'user'
     },
     roles: {
@@ -39,12 +39,15 @@ module.exports = {
       via: 'user',
       through: 'userrolemap'
     },
+    verify: {
+      model: 'verify'
+    },
     // permissions: {
     //   collection: 'Permission',
     //   via: 'user'
     // },
     permissions: {
-      Model: 'Permission'
+      Model: 'permission'
     },
 
     getGravatarUrl: function getGravatarUrl () {

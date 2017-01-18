@@ -43,7 +43,7 @@ class Waterauth extends lib.HookBuilder {
 
   configure () {
     lib.passport.loadStrategies()
-    .catch(sails.log.error)
+    .catch(this.sails.log.error)
 
     if (!R.is(Object, this.sails.config.waterauth)) {
       this.sails.config.waterauth = {}
@@ -56,6 +56,12 @@ class Waterauth extends lib.HookBuilder {
         let model = this.sails.models[key]
         model.connection = connName
       }, this._builder.models)
+    }
+
+    if (this.sails.config.waterauth.local && this.sails.config.waterauth.local.verifyEmail) {
+      if (!this.sails.hooks.email) {
+        throw new Error("'sails-hook-email' required for email verification.")
+      }
     }
 
     /**
