@@ -78,6 +78,9 @@ module.exports = {
   sendVerificationEmail: function sendVerificationEmail (req, res) {
     VerificationService.sendVerificationEmail(req.body, (err, status) => {
       if (err) {
+        if (err.status) {
+          return res.json(err.status, err)
+        }
         return res.negotiate(err)
       }
       res.json(200, {status: true})
@@ -88,6 +91,9 @@ module.exports = {
     let token = req.param('token')
     VerificationService.verify(token, (err, status) => {
       if (err) {
+        if (err.status) {
+          return res.json(err.status, err)
+        }
         return res.negotiate(err)
       }
       res.json(200, {status: true})

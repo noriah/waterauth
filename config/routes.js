@@ -13,7 +13,7 @@ module.exports.routes = {
   // 'post /auth/local/:action': 'AuthController.callback',
   'post /auth/local/register': 'UserController.create',
 
-  'post /auth/local/sendVerify': 'UserController.sendVerificationEmail',
+  'post /auth/sendVerify': 'UserController.sendVerificationEmail',
   'get /auth/verify/:token': 'UserController.verifyEmail',
 
   'get /auth/:provider': 'AuthController.provider',

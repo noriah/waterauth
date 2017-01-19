@@ -3,15 +3,12 @@
 const crypto = require('crypto')
 const base64URL = require('base64url')
 const R = require('ramda')
-const _ = require('lodash')
 
-let Passport
 let User
 let Verify
 
 sails.after('hook:orm:loaded', () => {
   ({
-    passport: Passport,
     user: User,
     verify: Verify
   } = sails.models)
@@ -30,7 +27,13 @@ function validateEmail (str) {
 }
 
 function generateToken () {
-  return base64URL(crypto.randomBytes(64))
+  let parts = [
+    base64URL(crypto.randomBytes(28)),
+    base64URL('' + Date.now()),
+    base64URL(crypto.randomBytes(36)),
+
+  ]
+  return R.join('-', parts)
 }
 
 var VerificationService = {}
@@ -52,7 +55,7 @@ VerificationService.sendVerificationEmail = function sendNewEmail (data, next) {
     }
 
     if (!user) {
-      return next({code: 'E_USER_NOTFOUND'}, false)
+      return next({code: 'E_USER_NOTFOUND', status: 404}, false)
     }
 
     return Verify.findOne({user: user.id}, (err, verify) => {
@@ -95,7 +98,7 @@ VerificationService.resendEmail = function resendEmail (identifier, next) {
     }
 
     if (!user) {
-      return next({code: 'E_USER_NOTFOUND'}, false)
+      return next({code: 'E_USER_NOTFOUND', status: 404}, false)
     }
 
     return Verify.findOne({user: user.id}, (err, verify) => {
@@ -164,7 +167,7 @@ VerificationService.verify = function verify (token, next) {
     }
 
     if (!verify) {
-      return next({code: 'E_NOT_FOUND'})
+      return next({code: 'E_NOT_FOUND', status: 404})
     }
 
     verify.verified = true
