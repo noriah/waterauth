@@ -30,8 +30,7 @@ function generateToken () {
   let parts = [
     base64URL(crypto.randomBytes(28)),
     base64URL('' + Date.now()),
-    base64URL(crypto.randomBytes(36)),
-
+    base64URL(crypto.randomBytes(36))
   ]
   return R.join('-', parts)
 }
@@ -51,16 +50,16 @@ VerificationService.sendVerificationEmail = function sendNewEmail (data, next) {
 
   return User.findOne(query, (err, user) => {
     if (err) {
-      return next(err, false)
+      return next(err)
     }
 
     if (!user) {
-      return next({code: 'E_USER_NOTFOUND', status: 404}, false)
+      return next({code: 'E_USER_NOTFOUND', status: 404})
     }
 
     return Verify.findOne({user: user.id}, (err, verify) => {
       if (err) {
-        return next(err, false)
+        return next(err)
       }
 
       if (!verify) {
@@ -70,7 +69,7 @@ VerificationService.sendVerificationEmail = function sendNewEmail (data, next) {
           token: token
         }, (err, verify) => {
           if (err) {
-            return next(err, false)
+            return next(err)
           }
 
           return VerificationService.sendEmail(user.email, user, token, next)
@@ -94,16 +93,16 @@ VerificationService.resendEmail = function resendEmail (identifier, next) {
 
   return User.findOne(query, (err, user) => {
     if (err) {
-      return next(err, false)
+      return next(err)
     }
 
     if (!user) {
-      return next({code: 'E_USER_NOTFOUND', status: 404}, false)
+      return next({code: 'E_USER_NOTFOUND', status: 404})
     }
 
     return Verify.findOne({user: user.id}, (err, verify) => {
       if (err) {
-        return next(err, false)
+        return next(err)
       }
 
       if (!verify) {

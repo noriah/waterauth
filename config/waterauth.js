@@ -17,14 +17,13 @@ module.exports.waterauth = {
   trackGetRequests: false,
 
   // If using local authentication, force users to verify their email address.
-  verifyLocalEmail: true,
 
   // Possible fields for local register
   local: {
     verifyEmail: false,
     emailTemplate: 'verify',
-    // verifyPage: '/auth/verify',
-    verifySubjecT: 'Welcome to a SailsJS App -- Verify Email',
+
+    verifySubject: 'Welcome to a SailsJS App -- Verify Email',
     fields: [
       'firstName',
       'lastName',

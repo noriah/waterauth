@@ -24,13 +24,11 @@ module.exports = {
   _config: { actions: true, shortcuts: false, rest: false },
 
   findOne: sails.utils.wrapCtrlReturn(function getUser (req, res) {
-    let username = req.param('username')
-    return UserService.findUser(username)
+    return UserService.findUser(req.param('username'))
   }),
 
   getUserRoles: sails.utils.wrapCtrlReturn(function getUserRoles (req, res) {
-    let username = req.param('username')
-    return UserService.findUserRoles(username)
+    return UserService.findUserRoles(req.param('username'))
     .then(roles => {
       if (sails.utils.isProduction()) {
         return {roles: R.pluck('name', roles)}
@@ -40,8 +38,7 @@ module.exports = {
   }),
 
   getUserPermissions: sails.utils.wrapCtrlReturn(function getUserPermissions (req, res) {
-    let username = req.param('username')
-    return UserService.findUserPermissions(username)
+    return UserService.findUserPermissions(req.param('username'))
     .then(permissions => {
       if (sails.utils.isProduction()) {
         return {permissions: R.pluck('name', permissions)}

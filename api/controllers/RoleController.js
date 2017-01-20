@@ -46,14 +46,12 @@ module.exports = {
   },
 
   findOne: sails.utils.wrapCtrlReturn(function getRole (req, res) {
-    let rolename = req.param('rolename')
-    return RoleService.findRole(rolename)
+    return RoleService.findRole(req.param('rolename'))
   }),
 
   // get /role/:rolename/users
   getRoleUsers: sails.utils.wrapCtrlReturn(function getRoleUsers (req, res) {
-    let rolename = req.param('rolename')
-    return RoleService.findRoleUsers(rolename)
+    return RoleService.findRoleUsers(req.param('rolename'))
     .then(role => {
       let users = role.users
       if (sails.utils.isProduction()) {
@@ -77,8 +75,7 @@ module.exports = {
 
   // /role/:rolename/permissions
   getRolePermissions: sails.utils.wrapCtrlReturn(function getRolePermissions (req, res) {
-    let rolename = req.param('rolename')
-    return RoleService.findRolePermissions(rolename)
+    return RoleService.findRolePermissions(req.param('rolename'))
     .then(role => {
       let permissions = role.permissions
       if (sails.utils.isProduction()) {

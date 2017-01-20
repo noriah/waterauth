@@ -44,7 +44,7 @@ function generateToken () {
  * @param {Function} next
  */
 function createUser (_user, next) {
-  let accessToken = generateToken()
+  // let accessToken = generateToken()
   let password = _user.password
   delete _user.password
 
@@ -54,19 +54,17 @@ function createUser (_user, next) {
   return sails.models.user.create(fields, function (err, user) {
     if (err) {
       sails.log.error(err)
-
       if (err.code === 'E_VALIDATION') {
         return next(new SAError({originalError: err}))
       }
-
       return next(err)
     }
 
     sails.models.passport.create({
       protocol: 'local',
       password: password,
-      user: user.id,
-      accessToken: accessToken
+      user: user.id
+      // accessToken: accessToken
     }, function (err, passport) {
       if (err) {
         if (err.code === 'E_VALIDATION') {
@@ -107,11 +105,9 @@ function updateUser (_user, next) {
   return sails.models.user.update(userFinder, _user, function (err, user) {
     if (err) {
       sails.log.error(err)
-
       if (err.code === 'E_VALIDATION') {
         return next(new SAError({ originalError: err }))
       }
-
       return next(err)
     }
     // Update retrieves an array
