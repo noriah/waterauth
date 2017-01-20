@@ -11,13 +11,6 @@ sails.after('hook:orm:loaded', () => {
   } = sails.models)
 })
 
-function validateValue (value) {
-  if (R.isNil(value)) {
-    return Promise.reject(new sails.utils.ServiceError(404, 'role not found in db', 'E_ROLE_NOT_FOUND'))
-  }
-  return Promise.resolve(value)
-}
-
 function getRole (rolename, isActive = true) {
   return Role.findOne({
     active: isActive,
@@ -32,19 +25,19 @@ function getRole (rolename, isActive = true) {
 let RoleService = {
   findRole: function findRole (rolename) {
     return getRole(rolename)
-    .then(validateValue)
+    .then(sails.utils.validateValue)
   },
 
   findRoleUsers: function findRoleUsers (rolename) {
     return getRole(rolename)
     .populate('users')
-    .then(validateValue)
+    .then(sails.utils.validateValue)
   },
 
   findRolePermissions: function findRolePermissions (rolename) {
     return getRole(rolename)
     .populate('permissions')
-    .then(validateValue)
+    .then(sails.utils.validateValue)
   },
 
   addPermissionsToRole: function addPermissionsToRole (permissions, rolename) {

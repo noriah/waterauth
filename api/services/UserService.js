@@ -1,6 +1,5 @@
 'use strict'
 
-const Promise = require('bluebird')
 const R = require('ramda')
 
 let Permission
@@ -13,13 +12,6 @@ sails.after('hook:orm:loaded', () => {
   } = sails.models)
 })
 
-function validateValue (value) {
-  if (R.isNil(value)) {
-    return Promise.reject(new sails.utils.ServiceError(404, 'user not found in db', 'E_USER_NOT_FOUND'))
-  }
-  return Promise.resolve(value)
-}
-
 function getUser (username) {
   return User.findOne({
     username: R.toLower(username)
@@ -29,20 +21,20 @@ function getUser (username) {
 let UserService = {
   findUser: function findUser (username) {
     return getUser(username)
-    .then(validateValue)
+    .then(sails.utils.validateValue)
   },
 
   findUserRoles: function findUserRoles (username) {
     return getUser(username)
     .populate('roles')
-    .then(validateValue)
+    .then(sails.utils.validateValue)
     .then(user => user.roles)
   },
 
   findUserPermissions: function findUserRoles (username) {
     return getUser(username)
     .populate('roles', {active: true})
-    .then(validateValue)
+    .then(sails.utils.validateValue)
     .then(user => {
       return Permission.find({
         or: [

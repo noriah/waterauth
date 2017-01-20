@@ -1,4 +1,8 @@
 {
+  "env": {
+    "node": true
+  },
+
   "extends": "standard",
   "globals": {
     "sails": true
