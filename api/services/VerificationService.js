@@ -166,7 +166,7 @@ VerificationService.verify = function verify (token, next) {
     }
 
     if (!verify) {
-      return next({code: 'E_NOT_FOUND', status: 404})
+      return next({code: 'E_TOKEN_NOTFOUND', status: 404})
     }
 
     verify.verified = true
