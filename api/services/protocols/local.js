@@ -113,7 +113,7 @@ function updateUser (_user, next) {
     // Update retrieves an array
     user = user[0]
     // Check if password has a string to replace it
-    if (!password) {
+    if (!!password) {
       sails.models.passport.findOne({
         protocol: 'local',
         user: user.id
