@@ -21,9 +21,13 @@ module.exports.waterauth = {
   // Possible fields for local register
   local: {
     verifyEmail: false,
-    emailTemplate: 'verify',
-
+    verifyEmailTemplate: 'verify',
     verifySubject: 'Welcome to a SailsJS App -- Verify Email',
+
+    resetEmail: false,
+    resetEmailTemplate: 'reset',
+    resetSubject: 'Password Reset -- SailsJS App',
+
     fields: [
       'firstName',
       'lastName',

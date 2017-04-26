@@ -5,12 +5,12 @@ const base64URL = require('base64url')
 const R = require('ramda')
 
 let User
-let Verify
+let PasswordReset
 
 sails.after('hook:orm:loaded', () => {
   ({
     user: User,
-    verify: Verify
+    passwordreset: PasswordReset
   } = sails.models)
 })
 
@@ -32,12 +32,13 @@ function generateToken () {
     base64URL('' + Date.now()),
     base64URL(crypto.randomBytes(36))
   ]
+
   return R.join('-', parts)
 }
 
-var VerificationService = {}
+let PasswordResetService = {}
 
-VerificationService.sendVerificationEmail = function sendNewEmail (data, next) {
+PasswordResetService.requestReset = function setupReset (data, next) {
   let identifier = data.identifier
   let isEmail = validateEmail(identifier)
   let query = {}
@@ -56,39 +57,18 @@ VerificationService.sendVerificationEmail = function sendNewEmail (data, next) {
     if (!user) {
       return next({code: 'E_USER_NOTFOUND', status: 404})
     }
-
-    return Verify.findOne({user: user.id}, (err, verify) => {
-      if (err) {
-        return next(err)
-      }
-
-      if (!verify) {
-        let token = generateToken()
-        Verify.create({
-          user: user.id,
-          token: token
-        }, (err, verify) => {
-          if (err) {
-            return next(err)
-          }
-
-          return VerificationService.sendEmail(user.email, user, token, next)
-        })
-      } else {
-        return VerificationService.sendEmail(user.email, user, verify.token, next)
-      }
-    })
   })
 }
 
-VerificationService.sendEmail = function sendEmail (email, user, token, next) {
-  let url = sails.config.waterauth.local.verifyPage
+PasswordResetService.sendEmail = function sendEmail (email, user, token, next) {
+  let url = sails.config.waterauth.local.resetPage
   if (R.isNil(url)) {
     url = sails.config.appUrl
     if (R.last(url) !== '/') {
       url = url + '/'
     }
-    url = url + 'auth/verify/'
+
+    url = url + 'auth/reset/'
   }
 
   if (R.last(url) !== '/') {
@@ -99,18 +79,18 @@ VerificationService.sendEmail = function sendEmail (email, user, token, next) {
 
   let appName = sails.config.appName || 'SailsJS App'
 
-  let subject = sails.config.waterauth.local.verifySubject
+  let subject = sails.config.waterauth.local.resetSubject
   if (R.isNil(subject)) {
-    subject = 'Welcome to ' + appName + ' -- Verify Email'
+    subject = appName + ' -- Password Reset'
   }
 
-  let template = sails.config.waterauth.local.verifyEmailTemplate || 'verify'
+  let template = sails.config.waterauth.local.resetEmailTemplate || 'reset'
 
   sails.hooks.email.send(template, {
     appName: appName,
     firstName: user.firstName,
     lastName: user.lastName,
-    verifyURL: url
+    resetURL: url
   }, {
     to: email,
     subject: subject
@@ -118,32 +98,9 @@ VerificationService.sendEmail = function sendEmail (email, user, token, next) {
     if (err) {
       sails.log.error(err)
     } else {
-      sails.log.debug('Verification email sent to ' + email)
+      sails.log.debug('Reset email sent to ' + email)
     }
   })
 
   return next(null, true)
 }
-
-VerificationService.verify = function verify (token, next) {
-  return Verify.findOne({token: token}, (err, verify) => {
-    if (err) {
-      return next(err)
-    }
-
-    if (!verify) {
-      return next({code: 'E_TOKEN_NOTFOUND', status: 404})
-    }
-
-    verify.verified = true
-    verify.save(err => {
-      if (err) {
-        return next(err)
-      }
-
-      return next(null)
-    })
-  })
-}
-
-module.exports = VerificationService

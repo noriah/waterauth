@@ -42,13 +42,13 @@ module.exports = {
     verify: {
       model: 'verify'
     },
-    // permissions: {
-    //   collection: 'Permission',
-    //   via: 'user'
-    // },
     permissions: {
-      Model: 'permission'
+      collection: 'permission',
+      via: 'user'
     },
+    // permissions: {
+    //   model: 'permission'
+    // },
 
     getGravatarUrl: function getGravatarUrl () {
       let md5 = crypto.createHash('md5')

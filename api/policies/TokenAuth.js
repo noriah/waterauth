@@ -33,6 +33,7 @@ module.exports = function TokenAuthPolicy (req, res, next) {
     req.token.owner = tObj.owner
     return sails.models.user.findOne(tObj.owner)
     .populate('roles')
+    // .populate('permissions')
   })
   .then(user => {
     if (!user) {

@@ -11,6 +11,7 @@ const R = require('ramda')
 let PassportService = sails.services.passportservice
 let UserService = sails.services.userservice
 let VerificationService = sails.services.verificationservice
+let PasswordResetService = sails.services.passwordresetservice
 
 // let User
 
@@ -87,6 +88,32 @@ module.exports = {
   verifyEmail: function verifyEmail (req, res) {
     let token = req.param('token')
     VerificationService.verify(token, (err, status) => {
+      if (err) {
+        if (err.status) {
+          return res.json(err.status, err)
+        }
+        return res.negotiate(err)
+      }
+      res.json(200, {status: true})
+    })
+  },
+
+  sendResetEmail: function sendResetEmail (req, res) {
+    PasswordResetService.sendResetEmail(req.body, (err, status) => {
+      if (err) {
+        if (err.status) {
+          return res.json(err.status, err)
+        }
+        return res.negotiate(err)
+      }
+      res.json(200, {status: true})
+    })
+  },
+
+  resetPassword: function resetPassword (req, res) {
+    let token = req.param('token')
+    let password = req.body.password
+    PasswordResetService.reset(token, password, (err, status) => {
       if (err) {
         if (err.status) {
           return res.json(err.status, err)

@@ -35,7 +35,6 @@ var permissionPolicies = [
 ]
 
 class Waterauth extends lib.HookBuilder {
-
   constructor (sails) {
     super(sails, module)
     sails.utils = lib.utils
@@ -61,6 +60,12 @@ class Waterauth extends lib.HookBuilder {
     if (this.sails.config.waterauth.local && this.sails.config.waterauth.local.verifyEmail) {
       if (!this.sails.hooks.email) {
         throw new Error("'sails-hook-email' required for email verification.")
+      }
+    }
+
+    if (this.sails.config.waterauth.local && this.sails.config.waterauth.local.resetEmail) {
+      if (!this.sails.hooks.email) {
+        throw new Error("'sails-hook-email' required for password reset by email.")
       }
     }
 

@@ -2,7 +2,7 @@
 
 const R = require('ramda')
 
-var Jwt
+let Jwt
 // var Permission
 // var Role
 
@@ -59,11 +59,11 @@ module.exports = {
       if (sails.config.jwt.includePermissions) {
         return PermissionService.findUserPermissions(req.user.id)
         .then(permissions => {
-          tokenData.permissions = permissions
+          // tokenData.permissions = permissions
 
-          if (sails.utils.isProduction()) {
-            tokenData.permissions = R.pluck('name', tokenData.permissions)
-          }
+          // if (sails.utils.isProduction()) {
+          tokenData.permissions = R.pluck('name', permissions)
+          // }
 
           return tokenData
         })
@@ -96,9 +96,9 @@ module.exports = {
     return PermissionService.findUserPermissions(req.user.id)
     .then(permissions => {
       let result = permissions
-      if (sails.utils.isProduction()) {
-        result = R.pluck('name', permissions)
-      }
+      // if (sails.utils.isProduction()) {
+      result = R.pluck('name', permissions)
+      // }
       return res.json(200, result)
     })
     .catch(next)
