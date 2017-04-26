@@ -20,6 +20,7 @@ module.exports = {
     token: {
       type: 'string',
       index: true,
+      unique: true,
       notNull: true
     },
 

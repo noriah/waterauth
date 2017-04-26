@@ -113,7 +113,7 @@ module.exports = {
   resetPassword: function resetPassword (req, res) {
     let token = req.param('token')
     let password = req.body.password
-    PasswordResetService.reset(token, password, (err, status) => {
+    PasswordResetService.reset(token, password, (err, user) => {
       if (err) {
         if (err.status) {
           return res.json(err.status, err)

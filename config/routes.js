@@ -16,6 +16,9 @@ module.exports.routes = {
   'post /auth/sendVerify': 'UserController.sendVerificationEmail',
   'get /auth/verify/:token': 'UserController.verifyEmail',
 
+  'post /auth/sendReset': 'UserController.sendResetEmail',
+  'post /auth/reset/:token': 'UserController.resetPassword',
+
   'get /auth/:provider': 'AuthController.provider',
   'post /auth/:provider': 'AuthController.callback',
   'get /auth/:provider/callback': 'AuthController.callback',

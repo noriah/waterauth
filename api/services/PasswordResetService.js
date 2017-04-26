@@ -38,7 +38,7 @@ function generateToken () {
 
 let PasswordResetService = {}
 
-PasswordResetService.requestReset = function setupReset (data, next) {
+PasswordResetService.sendResetEmail = function setupReset (data, next) {
   let identifier = data.identifier
   let isEmail = validateEmail(identifier)
   let query = {}
@@ -57,6 +57,33 @@ PasswordResetService.requestReset = function setupReset (data, next) {
     if (!user) {
       return next({code: 'E_USER_NOTFOUND', status: 404})
     }
+
+    return PasswordReset.findOne({
+      user: user.id,
+      valid: true,
+      used: false,
+      createdAt: { '>=': new Date(Date.now() - 600000) }
+    }, (err, reset) => {
+      if (err) {
+        return next(err)
+      }
+
+      if (!reset) {
+        let token = generateToken()
+        PasswordReset.create({
+          user: user.id,
+          token: token
+        }, (err, reset) => {
+          if (err) {
+            return next(err)
+          }
+
+          return PasswordResetService.sendEmail(user.email, user, token, next)
+        })
+      } else {
+        return PasswordResetService.sendEmail(user.email, user, reset.token, next)
+      }
+    })
   })
 }
 
@@ -104,3 +131,47 @@ PasswordResetService.sendEmail = function sendEmail (email, user, token, next) {
 
   return next(null, true)
 }
+
+PasswordResetService.reset = function resetPassword (token, password, next) {
+  return PasswordReset.findOne({token: token}, (err, reset) => {
+    if (err) {
+      return next(err)
+    }
+
+    if (!reset) {
+      return next({code: 'E_TOKEN_NOTFOUND', status: 404})
+    }
+
+    if (reset.valid !== true) {
+      return next({code: 'E_TOKEN_INVALID', status: 403})
+    }
+
+    if (reset.used === true) {
+      return next({code: 'E_TOKEN_USED', status: 403})
+    }
+
+    if (reset.createdAt < new Date(Date.now() - 600000)) {
+      return next({code: 'E_TOKEN_OLD', status: 403})
+    }
+
+    reset.used = true
+    reset.save(err => {
+      if (err) {
+        return next(err)
+      }
+    })
+
+    sails.services.passportservice.protocols.local.update({
+      id: reset.user,
+      password: password
+    }, (err, user) => {
+      if (err) {
+        return next(err)
+      }
+
+      return next(null)
+    })
+  })
+}
+
+module.exports = PasswordResetService

@@ -55,6 +55,12 @@ module.exports.policies = {
     verifyEmail: [
       'PassportPolicy'
     ],
+    sendResetEmail: [
+      'PassportPolicy'
+    ],
+    resetPassword: [
+      'PassportPolicy'
+    ],
     me: [
       'PassportPolicy',
       'SessionAuth'
