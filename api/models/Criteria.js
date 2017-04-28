@@ -17,8 +17,8 @@ module.exports = {
   attributes: {
     where: 'json',
     blacklist: 'array',
-    permission: {
-      model: 'Permission'
+    grants: {
+      model: 'GrantMap'
     }
   }
 }

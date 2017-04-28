@@ -25,10 +25,10 @@ module.exports = {
     },
     functions: {
       type: 'json'
-    },
-    permissions: {
-      collection: 'Permission',
-      via: 'controller'
     }
+    // permissions: {
+    //   collection: 'Permission',
+    //   via: 'controller'
+    // }
   }
 }

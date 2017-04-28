@@ -45,7 +45,8 @@ module.exports = {
     },
     permissions: {
       collection: 'Permission',
-      via: 'role'
+      via: 'role',
+      through: 'grantmap'
     }
   },
 

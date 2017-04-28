@@ -12,9 +12,9 @@ const R = require('ramda')
 let PermissionService = sails.services.permissionservice
 
 module.exports = function CriteriaPolicy (req, res, next) {
-  let permissions = req.permissions
+  let grants = req.grants
 
-  if (R.isEmpty(permissions)) {
+  if (R.isEmpty(grants)) {
     return next()
   }
 
@@ -25,7 +25,7 @@ module.exports = function CriteriaPolicy (req, res, next) {
 
   // if we are creating, we don't need to query the db, just check the where clause vs the passed in data
   if (httpMethod === 'POST') {
-    if (!PermissionService.hasPassingCriteria(body, permissions, body)) {
+    if (!PermissionService.hasPassingCriteria(body, grants, body)) {
       return res.send(403, {
         error: 'Can\'t create this object, because of failing where clause'
       })
@@ -43,7 +43,7 @@ module.exports = function CriteriaPolicy (req, res, next) {
           return [{where: {}}]
         }
         return c
-      }, R.pluck('criteria', permissions))
+      }, R.pluck('criteria', grants))
     ))
 
     if (criteria.length) {
@@ -72,7 +72,7 @@ module.exports = function CriteriaPolicy (req, res, next) {
         body = undefined
       }
 
-      if (!PermissionService.hasPassingCriteria(objects, permissions, body, req.user.id)) {
+      if (!PermissionService.hasPassingCriteria(objects, grants, body, req.user.id)) {
         return res.send(403, {
           error: 'Can\'t ' + httpMethod + ', because of failing where clause or attribute permissions'
         })

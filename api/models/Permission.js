@@ -29,38 +29,57 @@ module.exports = {
     //   required: false
     // },
 
-    controller: {
-      model: 'Controller',
-      required: true
-    },
-
     name: {
       type: 'string',
       index: true,
+      unique: true,
       notNull: true
     },
 
-    httpMethod: {
+    editable: {
+      type: 'boolean',
+      defaultsTo: true
+    },
+
+    description: {
       type: 'string',
-      index: true,
-      notNull: true,
-      /**
-       * TODO remove enum and support permissions based on all controller
-       * actions, including custom ones
-       */
+      defaultsTo: 'A Permission'
+    },
+
+    type: {
+      type: 'string',
       enum: [
-        'get',
-        'post',
-        'put',
-        'delete'
-      ]
-    },
+        'controller',
+        'normal'
+      ],
 
-    ctrlProperty: {
-      type: 'string',
-      index: true,
-      notNull: true
-    },
+      defaultsTo: 'normal',
+      index: true
+    }
+
+    // controller: {
+    //   model: 'Controller'
+    //   // required: true
+    // },
+
+    // httpMethod: {
+    //   type: 'string',
+    //   index: true,
+    //   // notNull: true,
+
+    //   enum: [
+    //     'get',
+    //     'post',
+    //     'put',
+    //     'delete'
+    //   ]
+    // },
+
+    // ctrlProperty: {
+    //   type: 'string',
+    //   index: true
+    //   // notNull: true
+    // }
 
     // type: {
     //   type: 'string',
@@ -73,65 +92,15 @@ module.exports = {
     //   index: true
     // },
 
-    relation: {
-      type: 'string',
-      enum: [
-        'role',
-        // 'owner',
-        'user'
-      ],
-      defaultsTo: 'role',
-      index: true
-    },
-
-    /**
-     * The Role to which this Permission grants create, read, update, and/or
-     * delete privileges.
-     */
-    role: {
-      model: 'Role'
-      // Validate manually
-      // required: true
-    },
-
-    /**
-     * The User to which this Permission grants create, read, update, and/or
-     * delete privileges.
-     */
-    user: {
-      model: 'User'
-      // Validate manually
-    },
-
-    /**
-     * A list of criteria.  If any of the criteria match the request, the action is allowed.
-     * If no criteria are specified, it is ignored altogether.
-     */
-    criteria: {
-      collection: 'Criteria',
-      via: 'permission'
-    }
   },
 
   afterValidate: [
-    function validateOwnerCreateTautology (permission, next) {
-  //     if (permission.relation === 'owner' && permission.action === 'create') {
-  //       next(new Error('Creating a Permission with relation=owner and action=create is tautological'))
-  //     }
+    // function validateControllerRequirement (permission, next) {
+    //   if (permission.type === 'controller' && R.isNil(permission.controller)) {
+    //     next(new Error('A Controller Permission requires a controller object'))
+    //   }
 
-      if (permission.action === 'delete' && !R.isNil(permission.criteria) && R.filter(criteria => !R.isEmpty(criteria.blacklist), permission.criteria).length >= 0) {
-        next(new Error('Creating a Permission with an attribute blacklist is not allowed when action=delete'))
-      }
-
-      if (permission.relation === 'user' && permission.user === '') {
-        next(new Error('A Permission with relation user MUST have the user attribute set'))
-      }
-
-      if (permission.relation === 'role' && permission.role === '') {
-        next(new Error('A Permission with relation role MUST have the role attribute set'))
-      }
-
-      next()
-    }
+    //   next()
+    // }
   ]
 }

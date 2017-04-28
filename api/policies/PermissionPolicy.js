@@ -1,6 +1,6 @@
 'use strict'
 
-// const R = require('ramda')
+const R = require('ramda')
 
 let PermissionService = sails.services.permissionservice
 
@@ -38,14 +38,14 @@ module.exports = function PermissionPolicy (req, res, next) {
     return next()
   }
 
-  PermissionService.findControllerPermissions(options)
-  .then(permissions => {
-    sails.log.debug('PermissionPolicy:', permissions.length,
-      'permissions grant', req.method,
+  return PermissionService.findControllerGrants(options)
+  .then(grants => {
+    sails.log.debug('PermissionPolicy:', grants.length,
+      'items grant', req.method,
       'on', `${req.controller.name}.${req.ctrlProperty}`,
       'for', req.user.username)
 
-    if (!permissions || permissions.length === 0) {
+    if (!grants || grants.length === 0) {
       let e = {
         code: 'E_PERMISSION_DENIED',
         context: {
@@ -61,9 +61,14 @@ module.exports = function PermissionPolicy (req, res, next) {
       return res.json(403, e)
     }
 
-    req.permissions = permissions
+    req.grants = grants
 
     next()
   })
-  .catch(next)
+  .catch(err => {
+    if (err instanceof sails.utils.ServiceError || !R.isNil(err.serviceError)) {
+      return res.json(err.errNum, {code: err.code})
+    }
+    return next(err)
+  })
 }

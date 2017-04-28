@@ -239,7 +239,7 @@ class Waterauth extends lib.HookBuilder {
     return lib.permission.create(this.roles, this.controllers, this.sails.config.waterauth)
     .then(() => {
       sails.log.verbose('Waterauth is creating the default roles')
-      return lib.permission.createDefaultRoles(lib.roleConfig, this.controllers)
+      // return lib.permission.createDefaultRoles(lib.roleConfig, this.controllers)
     })
   }
 }

@@ -44,7 +44,8 @@ module.exports = {
     },
     permissions: {
       collection: 'permission',
-      via: 'user'
+      via: 'user',
+      through: 'grantmap'
     },
     // permissions: {
     //   model: 'permission'
@@ -79,18 +80,19 @@ module.exports = {
    * Attach default Role to a new User
    */
   afterCreate: [
-    /* function setOwner (user, next) {
+    function setOwner (user, next) {
       sails.log.verbose('User.afterCreate.setOwner', user)
       sails.models.user
-        .update({ id: user.id }, { owner: user.id })
-        .then(function (user) {
-          next()
-        })
-        .catch(function (e) {
-          sails.log.error(e)
-          next(e)
-        })
-    }, */
+      .update({ id: user.id }, { owner: user.id })
+      .then(function (user) {
+        next()
+      })
+      .catch(function (e) {
+        sails.log.error(e)
+        next(e)
+      })
+    },
+
     function attachDefaultRole (user, next) {
       // sails.log('User.afterCreate.attachDefaultRole', user)
       sails.models.user.findOne(user.id)
