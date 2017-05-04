@@ -67,7 +67,6 @@ module.exports = {
 
           return tokenData
         })
-        .catch(next)
       }
 
       return tokenData

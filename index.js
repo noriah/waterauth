@@ -3,12 +3,14 @@ const lib = require('./lib')
 const Promise = require('bluebird')
 
 var defFunctions = [
+  'add',
   'find',
   'findOne',
   'create',
   'update',
   'destroy',
-  'populate'
+  'populate',
+  'remove'
 ]
 
 var falsyArr = [false, null, 0, '', undefined, NaN]
@@ -239,7 +241,7 @@ class Waterauth extends lib.HookBuilder {
     return lib.permission.create(this.roles, this.controllers, this.sails.config.waterauth)
     .then(() => {
       sails.log.verbose('Waterauth is creating the default roles')
-      // return lib.permission.createDefaultRoles(lib.roleConfig, this.controllers)
+      return lib.permission.createDefaultRoles(lib.roleConfig)
     })
   }
 }

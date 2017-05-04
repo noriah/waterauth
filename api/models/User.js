@@ -19,7 +19,8 @@ module.exports = {
     firstName: {
       type: 'string',
       index: true,
-      notNull: true
+      notNull: true,
+      required: true
     },
     tokens: {
       collection: 'jwt',
@@ -28,7 +29,8 @@ module.exports = {
     lastName: {
       type: 'string',
       index: true,
-      notNull: true
+      notNull: true,
+      required: true
     },
     passports: {
       collection: 'passport',

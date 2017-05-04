@@ -47,6 +47,8 @@ module.exports.routes = {
 
   'get /user/:username': 'UserController.findOne',
 
+  'post /user?': 'UserController.update',
+
   'get /user/:username/roles': 'UserController.getUserRoles',
   'post /user/:usernames/roles/:rolename': 'RoleController.addUsersToRole',
   'delete /user/:usernames/roles/:rolename': 'RoleController.removeUsersFromRole',
@@ -73,6 +75,7 @@ module.exports.routes = {
   // /////////// //
   // PERMISSIONS //
   // /////////// //
+  'post /permission/:permissionname': 'PermissionController.createPermission',
   'get /permission/:permissionname/users': 'PermissionController.getUsersWithPermission',
   'get /permission/:permissionname/roles': 'PermissionController.getRolesWithPermission'
 }

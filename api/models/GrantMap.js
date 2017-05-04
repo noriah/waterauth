@@ -42,7 +42,7 @@ module.exports = {
       type: 'string',
       enum: [
         'role',
-        'owner',
+        // 'owner',
         'user'
       ],
       defaultsTo: 'role',
@@ -67,6 +67,11 @@ module.exports = {
     user: {
       model: 'User'
       // Validate manually
+    },
+
+    isOwner: {
+      type: 'boolean',
+      defaultsTo: false
     },
 
     /**

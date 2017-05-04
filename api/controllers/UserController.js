@@ -31,9 +31,9 @@ module.exports = {
   getUserRoles: sails.utils.wrapCtrlReturn(function getUserRoles (req, res) {
     return UserService.findUserRoles(req.param('username'))
     .then(roles => {
-      if (sails.utils.isProduction()) {
-        return {roles: R.pluck('name', roles)}
-      }
+      // if (sails.utils.isProduction()) {
+      //   return {roles: R.pluck('name', roles)}
+      // }
       return {roles}
     })
   }),
@@ -41,9 +41,9 @@ module.exports = {
   getUserPermissions: sails.utils.wrapCtrlReturn(function getUserPermissions (req, res) {
     return UserService.findUserPermissions(req.param('username'))
     .then(permissions => {
-      if (sails.utils.isProduction()) {
-        return {permissions: R.pluck('name', permissions)}
-      }
+      // if (sails.utils.isProduction()) {
+      //   return {permissions: R.pluck('name', permissions)}
+      // }
       return {permissions}
     })
   }),
