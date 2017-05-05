@@ -6,7 +6,7 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
-const R = require('ramda')
+// const R = require('ramda')
 
 let PassportService = sails.services.passportservice
 let UserService = sails.services.userservice
@@ -22,14 +22,14 @@ let PasswordResetService = sails.services.passwordresetservice
 // })
 
 module.exports = {
-  _config: { actions: true, shortcuts: false, rest: false },
+  _config: { actions: false, shortcuts: false, rest: false },
 
-  findOne: sails.utils.wrapCtrlReturn(function getUser (req, res) {
-    return UserService.findUser(req.param('username'))
-  }),
+  // getUser: sails.utils.wrapCtrlReturn(function getUser (req, res) {
+  //   return UserService.getUser(req.param('userId'))
+  // }),
 
   getUserRoles: sails.utils.wrapCtrlReturn(function getUserRoles (req, res) {
-    return UserService.findUserRoles(req.param('username'))
+    return UserService.findUserRoles(req.param('userId'))
     .then(roles => {
       // if (sails.utils.isProduction()) {
       //   return {roles: R.pluck('name', roles)}
@@ -39,7 +39,7 @@ module.exports = {
   }),
 
   getUserPermissions: sails.utils.wrapCtrlReturn(function getUserPermissions (req, res) {
-    return UserService.findUserPermissions(req.param('username'))
+    return UserService.findUserPermissions(req.param('userId'))
     .then(permissions => {
       // if (sails.utils.isProduction()) {
       //   return {permissions: R.pluck('name', permissions)}

@@ -1,6 +1,6 @@
 'use strict'
 
-const R = require('ramda')
+// const R = require('ramda')
 
 /**
  * @module Permission
@@ -46,16 +46,21 @@ module.exports = {
       defaultsTo: 'A Permission'
     },
 
-    type: {
-      type: 'string',
-      enum: [
-        'controller',
-        'normal'
-      ],
-
-      defaultsTo: 'normal',
-      index: true
+    grants: {
+      collection: 'GrantMap',
+      via: 'permission'
     }
+
+    // type: {
+    //   type: 'string',
+    //   enum: [
+    //     'controller',
+    //     'normal'
+    //   ],
+
+    //   defaultsTo: 'normal',
+    //   index: true
+    // }
 
     // controller: {
     //   model: 'Controller'
@@ -92,15 +97,15 @@ module.exports = {
     //   index: true
     // },
 
-  },
+  }
 
-  afterValidate: [
-    // function validateControllerRequirement (permission, next) {
-    //   if (permission.type === 'controller' && R.isNil(permission.controller)) {
-    //     next(new Error('A Controller Permission requires a controller object'))
-    //   }
+  // afterValidate: [
+  //   // function validateControllerRequirement (permission, next) {
+  //   //   if (permission.type === 'controller' && R.isNil(permission.controller)) {
+  //   //     next(new Error('A Controller Permission requires a controller object'))
+  //   //   }
 
-    //   next()
-    // }
-  ]
+  //   //   next()
+  //   // }
+  // ]
 }

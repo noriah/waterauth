@@ -29,6 +29,36 @@ sails.after('hook:orm:loaded', () => {
   } = sails.models)
 })
 
+function validateUserRecord (user) {
+  if (!user) {
+    return Promise.reject(
+      new sails.utils.ServiceError(404, 'user not found', 'E_USER_NOT_FOUND')
+    )
+  }
+
+  return user
+}
+
+function validateRoleRecord (role) {
+  if (!role) {
+    return Promise.reject(
+      new sails.utils.ServiceError(404, 'role not found', 'E_ROLE_NOT_FOUND')
+    )
+  }
+
+  return role
+}
+
+function validatePermissionRecord (permission) {
+  if (!permission) {
+    return Promise.reject(
+      new sails.utils.ServiceError(404, 'permission not found', 'E_PERM_NOT_FOUND')
+    )
+  }
+
+  return permission
+}
+
 let PermissionService = {
 
   /**
@@ -96,39 +126,15 @@ let PermissionService = {
    * @param options.user
    */
   findControllerGrants: function findControllerGrants (options) {
-    // var httpMethod = PermissionService.getMethod(options.httpMethod)
-
-    // console.log('findControllerPermissions options', options)
-    // console.log('findControllerPermissions httpMethod', httpMethod)
-
-    // console.log(user)
-    // let permissionCriteria = {
-    //   type: 'controller',
-    //   controller: options.controller.id,
-    //   httpMethod: options.httpMethod,
-    //   ctrlProperty: options.ctrlProperty
-    // }
-
-    // console.log(permissionCriteria)
-
     let name = R.join('.', [
       options.controller.identity,
       options.ctrlProperty,
       options.httpMethod
     ])
 
-    // let permissionCriteria = {
-    //   name: name
-    //   // type: 'controller'
-    // }
-
     return PermissionService.getPermission(name)
+    .then(validatePermissionRecord)
     .then(permission => {
-      if (!permission) {
-        return Promise.reject(
-          new sails.utils.ServiceError(404, 'permission not found', 'E_PERM_NOT_FOUND')
-        )
-      }
       return User.findOne(options.user.id)
       .populate('roles', {active: true})
       .then(user => {
@@ -144,9 +150,10 @@ let PermissionService = {
     })
   },
 
-  findUserPermissions: function findUserPermissions (userid) {
-    return User.findOne(userid)
+  findUserPermissions: function findUserPermissions (userId) {
+    return User.findOne(userId)
     .populate('roles', {active: true})
+    .then(validateUserRecord)
     .then(user => {
       let permissionCriteria = {
         or: [
@@ -179,15 +186,36 @@ let PermissionService = {
       mappings = R.filter(x => !R.isNil(x), mappings)
 
       return mappings
-      // return Permission.find({
-      //   id: R.pluck('permission', mappings)
-      // })
-      // .then(permissions => {
-      //   let mapGroups = R.groupBy(R.prop('permission'), mappings)
-      //   R.forEach(perm => {
-      //     let hasCriteria = R.find(R.has('criteria'), mapGroups[perm.id])
-      //   }, permissions)
-      // })
+    })
+  },
+
+  findRolePermissions: function findRolePermissions (roleId) {
+    return GrantMap.find({
+      role: roleId,
+      relation: 'role'
+    })
+    .populate('permission')
+    .populate('criteria')
+    .then(mappings => {
+      mappings = R.map(map => {
+        if (!map.permission) {
+          return null
+        }
+
+        if (map.criteria) {
+          map.permission.criteria = map.criteria
+        }
+
+        map.permission.isOwner = map.isOwner
+
+        map.permission.relation = map.relation
+
+        return map.permission
+      }, mappings)
+
+      mappings = R.filter(x => !R.isNil(x), mappings)
+
+      return mappings
     })
   },
 
@@ -267,16 +295,10 @@ let PermissionService = {
   /**
    * This method is SUPER expensive. Dont use it often. Cache it if you use it
    */
-  findUsersWithPermission: function findUsersWithPermission (permissionName) {
-    return PermissionService.getPermission(permissionName)
+  findUsersWithPermission: function findUsersWithPermission (permissionId) {
+    return Permission.findOne(permissionId)
+    .then(validatePermissionRecord)
     .then(perm => {
-      if (!perm) {
-        return Promise.reject(
-          new sails.utils.ServiceError(404, 'permission not found', 'E_PERM_NOT_FOUND')
-          // new Error('Permission with name \'' + permissionName + '\' not found')
-        )
-      }
-
       let grantings
       return GrantMap.find({permission: perm.id})
       .populate('user')
@@ -306,56 +328,12 @@ let PermissionService = {
         return users
       })
     })
-    // let parts = R.toLower(permissionName).split('.')
-    // return Controller.findOne({identity: parts[0]})
-    // .then(controller => {
-    //   let permissionCriteria = {
-    //     controller: controller.id,
-    //     ctrlProperty: parts[1],
-    //     httpMethod: parts[2]
-    //   }
-    //   let perms
-    //   return Permission.find(permissionCriteria)
-    //   .populate('user')
-    //   .populate('role')
-    //   .then(permissions => {
-    //     perms = R.groupBy(R.prop('relation'), permissions)
-
-    //     if (!R.isNil(perms.user)) {
-    //       perms.user = R.pluck('user', perms.user)
-    //     } else {
-    //       perms.user = []
-    //     }
-
-    //     if (!R.isNil(perms.role)) {
-    //       perms.role = R.map(permission2 => permission2.role.id, perms.role)
-
-    //       return Role.find(perms.role)
-    //       .populate('users')
-    //       .then(roles => R.unnest(R.pluck('users', roles)))
-    //     }
-
-    //     return []
-    //   })
-    //   .then(users => {
-    //     console.log(users)
-    //     users = R.concat(users, perms.user)
-    //     users = R.uniqBy(R.prop('username'), users)
-    //     return users
-    //   })
-    // })
   },
 
-  findRolesWithPermission: function findRolesWithPermission (permissionName) {
-    return PermissionService.getPermission(permissionName)
+  findRolesWithPermission: function findRolesWithPermission (permissionId) {
+    return Permission.findOne(permissionId)
+    .then(validatePermissionRecord)
     .then(perm => {
-      if (!perm) {
-        return Promise.reject(
-          new sails.utils.ServiceError(404, 'permission not found', 'E_PERM_NOT_FOUND')
-          // new Error('Permission with name \'' + permissionName + '\' not found')
-        )
-      }
-
       return GrantMap.find({
         permission: perm.id,
         relation: 'role'
@@ -363,23 +341,6 @@ let PermissionService = {
       .populate('role')
       .then(R.pluck('role'))
     })
-    // let parts = R.toLower(permissionName).split('.')
-    // return Controller.findOne({identity: parts[0]})
-    // .then(controller => {
-    //   let permissionCriteria = {
-    //     controller: controller.id,
-    //     ctrlProperty: parts[1],
-    //     httpMethod: parts[2]
-    //   }
-    //   return Permission.findOne(permissionCriteria)
-    // })
-    // .then(permission => {
-    //   GrantMap.find({
-    //     permission: permission.id
-    //   })
-    //   .populate('role')
-    //   .then(R.pluck('role'))
-    // })
   },
 
   /**
@@ -405,108 +366,16 @@ let PermissionService = {
     return methodMap[method]
   },
 
-  /**
-   * create a new role
-   * @param options
-   * @param options.name {string} - role name
-   * @param options.users {array of user names} - optional array of user ids that have this role
-   */
-  createRole: function createRole (options) {
-    let ok
-    let query = {
-      name: options.name,
-      description: options.description
-    }
-
-    if (options.users) {
-      ok = User.find({username: options.users})
-      .then(users => {
-        query.users = users
-      })
-    } else {
-      ok = Promise.resolve()
-    }
-
-    return ok.then(() => Role.create(query))
-
-    // let permissions = options.permissions
-
-    // if (!R.is(Array, permissions)) {
-    //   permissions = [permissions]
-    // }
-
-    // look up the controller id based on the controller name for each permission, and change it to an id
-    // ok = ok.then(() => {
-    //   return Promise.all(permissions.map(permission => {
-    //     return Controller.findOne({ name: permission.controller })
-    //     .then(controller => {
-    //       permission.controller = controller.id
-    //       return permission
-    //     })
-    //   }))
-    // })
-
-    // look up user ids based on usernames, and replace the names with ids
-  },
-
   createPermission: function createPermission (permission) {
-    // if (R.is(String, permission)) {
-    //   permission = {name: permission}
-    // }
     let description = permission.description || 'A Permission'
     let editable = !R.isNil(permission.editable) ? permission.editable : true
-    // let type = (permission.controller ? 'controller' : 'normal')
     let name = R.toLower(permission.name)
-    let query
-    let search
-    // if (type === 'controller') {
-    //   let controller = permission.controller
-    //   if (controller.identity) {
-    //     controller = controller.identity
-    //   }
-    //   let name = R.join('.', [
-    //     controller, permission.ctrlProperty, permission.httpMethod
-    //   ])
-    //   search = {
-    //     name: name
-    //     // type: 'controller'
-    //     // controller: permission.controller,
-    //     // ctrlProperty: permission.ctrlProperty,
-    //     // httpMethod: permission.httpMethod
-    //   }
-
-    //   query = {
-    //     name: name,
-    //     // type: 'controller',
-    //     editable: editable,
-    //     description: description
-    //   }
-
-    //   // return Controller.findOne({ name: permission.controller })
-    //   // .then(ctrlr => {
-    //   //   if (!ctrlr) {
-    //   //     return Promise.reject(
-    //   //       new sails.utils.ServiceError(404, 'Controller not found (' + permission.controller + ')', 'E_CTRLR_NOT_FOUND')
-    //   //       // new Error('Controller not found \'' + permission.controller + '\'')
-    //   //     )
-    //   //   }
-    //   //   query.controller = ctrlr.id
-
-    //   // })
-    //   // return Permission.findOrCreate(query, query)
-    // } else {
-    search = {
-      name: name
-      // type: 'normal'
-    }
-
-    query = {
+    let search = { name: name }
+    let query = {
       name: name,
-      // type: 'normal',
       editable: editable,
       description: description
     }
-    // }
 
     return Permission.findOrCreate(search, query)
   },
@@ -538,22 +407,21 @@ let PermissionService = {
 
     // look up the controllers based on name, and replace them with ids
     return Promise.all(permissions.map(permission => {
-      return PermissionService.getPermission(permission.name)
-      .then(perm => {
-        if (!perm) {
-          return Promise.reject(
-            new sails.utils.ServiceError(404, "permission not found '" + permission.name + "'", 'E_PERM_NOT_FOUND')
-          )
-        }
+      let p
+      if (permission.permission) {
+        p = Permission.findOne(permission.permission)
+      } else if (permission.name) {
+        p = PermissionService.getPermission(permission.name)
+      }
 
+      return p.then(validatePermissionRecord)
+      .then(perm => {
         let findRole = null
         if (permission.role) {
           if (permission.role.id) {
             findRole = permission.role
           } else {
-            findRole = Role.findOne({
-              identity: R.toLower(permission.role)
-            })
+            findRole = Role.findOne(permission.role).then(validateRoleRecord)
           }
         }
 
@@ -562,9 +430,7 @@ let PermissionService = {
           if (permission.user.id) {
             findUser = permission.user
           } else {
-            findUser = User.findOne({
-              username: permission.user
-            })
+            findUser = User.findOne(permission.user).then(validateUserRecord)
           }
         }
 
@@ -598,29 +464,7 @@ let PermissionService = {
           return GrantMap.findOrCreate(query, query)
         })
       })
-      // let findRole = permission.role ? Role.findOne({
-      //   identity: permission.role
-      // }) : null
-      // let findUser = permission.user ? User.findOne({
-      //   username: permission.user
-      // }) : null
-      // return Promise.all([findRole, findUser, Controller.findOne({
-      //   name: permission.controller
-      // })])
-      // .then(([role, user, controller]) => {
-      //   permission.controller = controller.id
-      //   if (role && role.id) {
-      //     permission.role = role.id
-      //   } else if (user && user.id) {
-      //     permission.user = user.id
-      //   } else {
-      //     return Promise.reject(new Error('no role or user specified'))
-      //   }
-      // })
     }))
-    // .then(permMaps => GrantMap.create(permMaps))
-
-    // ok = ok.then(() => GrantMap.create(permissions))
   },
 
   // langateam/sails-permissions#205
@@ -704,88 +548,31 @@ let PermissionService = {
   },
 
   /**
-   * add one or more users to a particular role
-   * @param usernames {string or string array} - list of names of users
-   * @param rolename {string} - the name of the role that the users should be added to
-   */
-  addUsersToRole: function addUsersToRole (usernames, rolename) {
-    if (R.isEmpty(usernames)) {
-      return Promise.reject(new Error('One or more usernames must be provided'))
-    }
-
-    if (!R.is(Array, usernames)) {
-      usernames = [usernames]
-    }
-
-    return Role.findOne({ identity: R.toLower(rolename) })
-    .populate('users')
-    .then(role => {
-      return User.find({ username: usernames })
-      .then(users => {
-        role.users.add(R.pluck('id', users))
-        return role.save()
-      })
-    })
-  },
-
-  /**
-   * remove one or more users from a particular role
-   * @params usernames {string or string array} - name or list of names of users
-   * @params rolename {string} - the name of the role that the users should be removed from
-   */
-  removeUsersFromRole: function removeUsersFromRole (usernames, rolename) {
-    if (R.isEmpty(usernames)) {
-      return Promise.reject(new Error('One or more usernames must be provided'))
-    }
-
-    rolename = R.toLower(rolename)
-
-    if (!R.is(Array, usernames)) {
-      usernames = [usernames]
-    }
-
-    return Role.findOne({identity: rolename})
-    .populate('users')
-    .then(role => {
-      return User.find({username: usernames}, {select: ['id']})
-      .then(users => {
-        users.map(user => {
-          role.users.remove(user.id)
-        })
-        return role.save()
-      })
-    })
-  },
-
-  /**
    * revoke permission from role
    * @param options
-   * @param options.permission {object} The permission name
-   * @param options.role {string} - the name of the role related to the permission.  This, or options.user should be set, but not both.
-   * @param options.user {string} - the name of the user related to the permission.  This, or options.role should be set, but not both.
+   * @param options.permission {object} The permission id
+   * @param options.role {string} - the id of the role related to the permission.  This, or options.user should be set, but not both.
+   * @param options.user {string} - the id of the user related to the permission.  This, or options.role should be set, but not both.
    * @param options.relation {string} - the type of the relation (owner or role)
    */
   revoke: function revoke (options) {
     let permission = options.permission
-    let type = (permission.controller ? 'controller' : 'normal')
-    let query
-    let permName
-    if (type === 'controller') {
-      permName = R.join('.', [
-        permission.controller, permission.ctrlProperty, permission.httpMethod
-      ])
-    } else {
-      permName = permission.name
-    }
+    // let type = (permission.controller ? 'controller' : 'normal')
+    // let permName
+    // if (type === 'controller') {
+      // permName = R.join('.', [
+        // permission.controller, permission.ctrlProperty, permission.httpMethod
+      // ])
+    // } else {
+    // permName = permission.name
+    // }
 
     let findRole = null
     if (permission.role) {
       if (permission.role.id) {
         findRole = permission.role
       } else {
-        findRole = Role.findOne({
-          identity: R.toLower(permission.role)
-        })
+        findRole = Role.findOne(permission.role).then(validateRoleRecord)
       }
     }
 
@@ -794,21 +581,24 @@ let PermissionService = {
       if (permission.user.id) {
         findUser = permission.user
       } else {
-        findUser = User.findOne({
-          username: permission.user
-        })
+        findUser = User.findOne(permission.user).then(validateUserRecord)
       }
     }
 
-    let ok = Promise.all([findRole, findUser, PermissionService.getPermission(permName)])
+    let ok = Promise.all([findRole, findUser, Permission.findOne(permission)])
 
     return ok.then(([role, user, perm]) => {
       if (!perm) {
         return Promise.resolve()
       }
 
-      let query2 = {
-        permission: perm.id
+      if (R.isNil(permission.isOwner)) {
+        permission.isOwner = false
+      }
+
+      let query = {
+        permission: perm.id,
+        isOwner: permission.isOwner
       }
 
       if (permission.criteria) {
@@ -816,15 +606,14 @@ let PermissionService = {
       }
 
       if (role && role.id) {
-        query2.role = role.id
-        query2.relation = 'role'
+        query.role = role.id
+        query.relation = 'role'
       } else if (user && user.id) {
-        query2.user = user.id
-        query2.relation = 'user'
+        query.user = user.id
+        query.relation = 'user'
       } else {
         return Promise.reject(
           new sails.utils.ServiceError(400, 'Missing role or user value', 'E_MISSING_ARGUMENTS')
-          // new Error('You must provide either a user or role to revoke the permission from')
         )
       }
 
@@ -867,22 +656,11 @@ let PermissionService = {
     return obj => {
       let p1 = User.findOne(user)
       .populate('roles', {active: true})
-      .then(userObj => {
-        if (!userObj) {
-          return Promise.reject(new Error('User not found from id'))
-        }
-        return userObj
-      })
+      .then(validateUserRecord)
 
       let pName = R.join('.', [controller, ctrlProperty, httpMethod])
       let p2 = PermissionService.getPermission(pName)
-      .then(permObj => {
-        if (!permObj) {
-          return Promise.reject(new Error('Permission not found from name'))
-        }
-
-        return permObj
-      })
+      .then(validatePermissionRecord)
 
       return Promise.all([p1, p2])
       .then(([userObj, permObj]) => {

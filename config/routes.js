@@ -45,37 +45,36 @@ module.exports.routes = {
 
   'get /user/me': 'UserController.me',
 
-  'get /user/:username': 'UserController.findOne',
+  'get /user/:id?': 'UserController.findOne',
 
-  'post /user?': 'UserController.update',
+  'put /user?': 'UserController.update',
 
-  'get /user/:username/roles': 'UserController.getUserRoles',
-  'post /user/:usernames/roles/:rolename': 'RoleController.addUsersToRole',
-  'delete /user/:usernames/roles/:rolename': 'RoleController.removeUsersFromRole',
-
-  'get /user/:username/permissions': 'UserController.getUserPermissions',
+  'get /user/:userId/roles': 'UserController.getUserRoles',
+  'get /user/:userId/permissions': 'UserController.getUserPermissions',
 
   // ///// //
   // ROLES //
   // ///// //
   'get /role?': 'RoleController.find',
 
-  'get /role/:rolename': 'RoleController.findOne',
-  'post /role/:rolename': 'RoleController.createRole',
-  'delete /role/:rolename': 'RoleController.destroyRole',
+  'get /role/:id?': 'RoleController.findOne',
+  'post /role': 'RoleController.createRole',
+  'delete /role/:id': 'RoleController.destroy',
 
-  'get /role/:rolename/users': 'RoleController.getRoleUsers',
-  'post /role/:rolename/users/:usernames': 'RoleController.addUsersToRole',
-  'delete /role/:rolename/users/:usernames': 'RoleController.removeUsersFromRole',
+  'get /role/:roleId/users': 'RoleController.getRoleUsers',
+  'post /role/:roleId/users/:userIds': 'RoleController.addUsersToRole',
+  'delete /role/:roleId/users/:userIds': 'RoleController.removeUsersFromRole',
 
-  'get /role/:rolename/permissions': 'RoleController.getRolePermissions',
-  'post /role/:rolename/permissions/:permissionames': 'RoleController.addPermissionsToRole',
-  'delete /role/:rolename/permission/:permissionames': 'RoleController.removePermissionsFromRole',
+  'get /role/:roleId/permissions': 'RoleController.getRolePermissions',
+  'post /role/:roleId/permissions/:permissionames': 'RoleController.addPermissionsToRole',
+  'delete /role/:roleId/permission/:permissionames': 'RoleController.removePermissionsFromRole',
 
   // /////////// //
   // PERMISSIONS //
   // /////////// //
-  'post /permission/:permissionname': 'PermissionController.createPermission',
-  'get /permission/:permissionname/users': 'PermissionController.getUsersWithPermission',
-  'get /permission/:permissionname/roles': 'PermissionController.getRolesWithPermission'
+  'get /permission?': 'PermissionController.find',
+  'get /permission/:id?': 'PermissionController.findOne',
+  'post /permission': 'PermissionController.createPermission',
+  'get /permission/:permissionId/users': 'PermissionController.getUsersWithPermission',
+  'get /permission/:permissionId/roles': 'PermissionController.getRolesWithPermission'
 }
