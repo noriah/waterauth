@@ -59,11 +59,6 @@ function validatePermissionRecord (permission) {
   return permission
 }
 
-function validatePermissionRecordA (name) {
-  console.log(name)
-  return validatePermissionRecord
-}
-
 let PermissionService = {
 
   /**
@@ -424,7 +419,7 @@ let PermissionService = {
         p = PermissionService.getPermission(permission.name)
       }
 
-      return p.then(validatePermissionRecordA(permission))
+      return p.then(validatePermissionRecord)
       .then(perm => {
         let findRole = null
         if (permission.role) {
