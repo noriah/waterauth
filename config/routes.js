@@ -59,7 +59,7 @@ module.exports.routes = {
 
   'get /role/:id?': 'RoleController.findOne',
   'post /role': 'RoleController.createRole',
-  'delete /role/:id': 'RoleController.destroy',
+  'delete /role/:id': 'RoleController.destroyRole',
 
   'get /role/:roleId/users': 'RoleController.getRoleUsers',
   'post /role/:roleId/users/:userIds': 'RoleController.addUsersToRole',
@@ -76,5 +76,7 @@ module.exports.routes = {
   'get /permission/:id?': 'PermissionController.findOne',
   'post /permission': 'PermissionController.createPermission',
   'get /permission/:permissionId/users': 'PermissionController.getUsersWithPermission',
-  'get /permission/:permissionId/roles': 'PermissionController.getRolesWithPermission'
+  'get /permission/:permissionId/roles': 'PermissionController.getRolesWithPermission',
+  'post /permission/grant': 'PermissionController.grant',
+  'delete /permission/grant/:id': 'PermissionController.deleteGrant'
 }

@@ -180,6 +180,8 @@ let PermissionService = {
 
         map.permission.relation = map.relation
 
+        map.permission.grantId = map.id
+
         return map.permission
       }, mappings)
 
@@ -209,6 +211,8 @@ let PermissionService = {
         map.permission.isOwner = map.isOwner
 
         map.permission.relation = map.relation
+
+        map.permission.grantId = map.id
 
         return map.permission
       }, mappings)
@@ -382,6 +386,7 @@ let PermissionService = {
 
   getPermission: function getPermission (name) {
     name = R.toLower(name)
+    // console.log(name)
     return sails.models.permission.findOne({name: name})
   },
 

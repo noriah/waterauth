@@ -60,6 +60,20 @@ let RoleService = {
     return ok.then(() => Role.findOrCreate(search, query))
   },
 
+  destroyRole: function destroyRole (roleId) {
+    return Role.findOne(roleId)
+    .then(validateValue)
+    .then(role => {
+      if (!role.removable) {
+        return Promise.reject(
+          new sails.utils.ServiceError(401, 'cant delete built in role', 'E_ROLE_BUILTIN')
+        )
+      }
+
+      return Role.destroy(roleId)
+    })
+  },
+
   findRoleUsers: function findRoleUsers (roleId) {
     return getRole(roleId)
     .populate('users')

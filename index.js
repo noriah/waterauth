@@ -191,10 +191,8 @@ class Waterauth extends lib.HookBuilder {
     sails.log.verbose('waterauth moved on to updating permission roles...')
 
     return Promise.all([
-      this.sails.models.role.findOrCreate({ name: 'root' }, { name: 'root' }),
-      this.sails.models.role.findOrCreate({ name: 'admin' }, { name: 'admin' }),
-      this.sails.models.role.findOrCreate({ name: 'registered' }, { name: 'registered' }),
-      this.sails.models.role.findOrCreate({ name: 'public' }, { name: 'public' })
+      this.sails.models.role.findOrCreate({ name: 'root' }, { name: 'root', removable: false }),
+      this.sails.models.role.findOrCreate({ name: 'registered' }, { name: 'registered', removable: false })
     ])
     .then(roles => {
       this.roles = roles
@@ -202,6 +200,7 @@ class Waterauth extends lib.HookBuilder {
   }
 
   createUpdateAdmin () {
+    let self = this
     sails.log.verbose('Waterauth is updating the admin user')
 
     // let userModel = R.find(R.propEq('name', 'User'), this.models)
@@ -224,10 +223,7 @@ class Waterauth extends lib.HookBuilder {
         email: sails.config.waterauth.adminEmail,
         firstName: sails.config.waterauth.adminFirstName || 'Admin',
         lastname: sails.config.waterauth.adminLastName || 'McAdminFace',
-        roles: [ R.find(R.propEq('name', 'root'), this.roles).id ]
-        // createdBy: 1,
-        // owner: 1,
-        // model: userModel.id
+        roles: [ R.find(R.propEq('name', 'root'), self.roles).id ]
       })
     })
   }

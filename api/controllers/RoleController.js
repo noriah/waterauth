@@ -45,7 +45,7 @@ module.exports = {
   }),
 
   destroyRole: sails.utils.wrapCtrlReturn(function destroyRole (req, res) {
-    return RoleService.destroyRole(req.param('roleId'))
+    return RoleService.destroyRole(req.param('id'))
   }),
 
   // findOne: sails.utils.wrapCtrlReturn(function getRole (req, res) {

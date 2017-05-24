@@ -30,6 +30,10 @@ module.exports = {
     identity: {
       type: 'string'
     },
+    removable: {
+      type: 'boolean',
+      defaultsTo: true
+    },
     description: {
       type: 'string'
     },

@@ -17,6 +17,14 @@ module.exports = {
     return PermissionService.createPermission(req.body)
   }),
 
+  grant: sails.utils.wrapCtrlReturn((req, res) => {
+    return PermissionService.grant(req.body)
+  }),
+
+  deleteGrant: sails.utils.wrapCtrlReturn((req, res) => {
+    return sails.models.grantmap.delete(req.param('id'))
+  }),
+
   getUsersWithPermission: sails.utils.wrapCtrlReturn((req, res) => {
     let permissionId = req.param('permissionId')
     return PermissionService.findUsersWithPermission(permissionId)
