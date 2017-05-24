@@ -222,7 +222,7 @@ class Waterauth extends lib.HookBuilder {
         password: sails.config.waterauth.adminPassword,
         email: sails.config.waterauth.adminEmail,
         firstName: sails.config.waterauth.adminFirstName || 'Admin',
-        lastname: sails.config.waterauth.adminLastName || 'McAdminFace',
+        lastName: sails.config.waterauth.adminLastName || 'McAdminFace',
         roles: [ R.find(R.propEq('name', 'root'), self.roles).id ]
       })
     })
