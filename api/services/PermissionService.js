@@ -138,7 +138,7 @@ let PermissionService = {
     ])
 
     return PermissionService.getPermission(name)
-    .then(validatePermissionRecordA(name))
+    .then(validatePermissionRecord)
     .then(permission => {
       return User.findOne(options.user.id)
       .populate('roles', {active: true})
@@ -306,7 +306,7 @@ let PermissionService = {
    */
   findUsersWithPermission: function findUsersWithPermission (permissionId) {
     return Permission.findOne(permissionId)
-    .then(validatePermissionRecordA(permissionId))
+    .then(validatePermissionRecord)
     .then(perm => {
       let grantings
       return GrantMap.find({permission: perm.id})
@@ -341,7 +341,7 @@ let PermissionService = {
 
   findRolesWithPermission: function findRolesWithPermission (permissionId) {
     return Permission.findOne(permissionId)
-    .then(validatePermissionRecordA(permissionId))
+    .then(validatePermissionRecord)
     .then(perm => {
       return GrantMap.find({
         permission: perm.id,
@@ -670,7 +670,7 @@ let PermissionService = {
 
       let pName = R.join('.', [controller, ctrlProperty, httpMethod])
       let p2 = PermissionService.getPermission(pName)
-      .then(validatePermissionRecordA(pName))
+      .then(validatePermissionRecord)
 
       return Promise.all([p1, p2])
       .then(([userObj, permObj]) => {
